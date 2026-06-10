@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAFAFB;
+  --foreground: #0F0F23;
+
+  /* Gen Z Palette — Solid, no gradients */
+  --primary: #7C3AED;
+  --primary-hover: #6D28D9;
+  --primary-light: #EDE9FE;
+  --accent: #F43F5E;
+  --accent-light: #FFF1F3;
+  --teal: #0EA5E9;
+  --teal-light: #E0F2FE;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+
+  /* Neutrals */
+  --surface: #FFFFFF;
+  --surface-2: #F4F4F6;
+  --border: #E4E4E7;
+  --text-muted: #71717A;
+  --text-strong: #18181B;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(124,58,237,0.1), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-lg: 0 16px 40px rgba(124,58,237,0.12), 0 4px 12px rgba(0,0,0,0.06);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-teal: var(--teal);
+  --color-teal-light: var(--teal-light);
+  --color-amber: var(--amber);
+  --color-amber-light: var(--amber-light);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text-muted: var(--text-muted);
+  --color-text-strong: var(--text-strong);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Blob animation */
+.blob {
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  animation: morph 10s ease-in-out infinite both alternate;
+}
+
+@keyframes morph {
+  0%, 100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+  34%       { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
+  67%       { border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%; }
+}
+
+.perspective-1000 { perspective: 1000px; }
