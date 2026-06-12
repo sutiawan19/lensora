@@ -20,16 +20,17 @@ export default function Home() {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-foreground">
+          <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-foreground">
             <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center">
               <Camera className="w-4 h-4" />
             </div>
             Lensora<span className="text-primary">.</span>
-          </div>
+          </Link>
           <div className="hidden md:flex gap-8 items-center text-sm font-semibold text-text-muted">
-            <a href="#" className="hover:text-primary transition-colors">Fitur</a>
-            <Link href="/explore" className="hover:text-primary transition-colors">Fotografer</Link>
-            <a href="#" className="hover:text-primary transition-colors">Harga</a>
+            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+            <Link href="/explore" className="hover:text-primary transition-colors">Explore Photographer</Link>
+            <Link href="/about" className="hover:text-primary transition-colors">About</Link>
+            <Link href="/vendor-onboarding" className="hover:text-primary transition-colors">Become Vendor</Link>
           </div>
           <div className="flex gap-3 items-center">
             <Link href="/login" className="text-sm font-bold text-text-muted hover:text-foreground transition-colors hidden sm:block">Masuk</Link>

@@ -133,8 +133,14 @@ export default function ExplorePhotographers() {
           </div>
           Lensora<span className="text-primary">.</span>
         </Link>
-        <div className="flex gap-4">
-          <Link href="/dashboard" className="text-sm font-bold text-text-muted hover:text-foreground transition-colors hidden sm:block mt-2">Dashboard</Link>
+        <div className="hidden md:flex gap-8 items-center text-sm font-semibold text-text-muted absolute left-1/2 -translate-x-1/2">
+           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+           <Link href="/explore" className="text-primary transition-colors">Explore Photographer</Link>
+           <Link href="/about" className="hover:text-primary transition-colors">About</Link>
+           <Link href="/vendor-onboarding" className="hover:text-primary transition-colors">Become Vendor</Link>
+        </div>
+        <div className="flex gap-4 items-center">
+          <Link href="/dashboard" className="text-sm font-bold text-text-muted hover:text-foreground transition-colors hidden sm:block mt-0.5">Dashboard</Link>
           <Link href="/login" className="px-4 py-2 bg-surface-2 hover:bg-border rounded-xl text-foreground text-sm font-bold transition-colors">Masuk</Link>
         </div>
       </nav>
@@ -321,11 +327,8 @@ export default function ExplorePhotographers() {
                           <p className="font-extrabold text-foreground text-sm">{photographer.price}</p>
                        </div>
                        <div className="flex gap-2">
-                          <button className="w-9 h-9 flex items-center justify-center border border-border rounded-xl text-text-muted hover:text-primary hover:border-primary hover:bg-primary-light transition-colors" title="Bandingkan">
-                             <GitCompareArrows className="w-4 h-4" />
-                          </button>
-                          <Link href={`/photographer/${photographer.id}`} className="px-4 py-2 bg-foreground hover:bg-primary text-white text-xs font-bold rounded-xl transition-colors flex items-center">
-                             Lihat
+                          <Link href={`/photographer/${photographer.id}`} className="px-6 py-2.5 w-full bg-foreground hover:bg-primary text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center">
+                             Lihat Profil
                           </Link>
                        </div>
                     </div>

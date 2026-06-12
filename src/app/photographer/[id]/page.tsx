@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { addPackageToCompare } from "@/components/CompareTray";
 
 // --- Mock Data ---
 const PHOTOGRAPHER = {
@@ -89,9 +90,7 @@ export default function PhotographerDetail() {
           <span className="font-bold text-sm hidden sm:block">Kembali ke Pencarian</span>
         </div>
         <div className="flex gap-4 items-center">
-          <button className="flex items-center gap-2 text-sm font-bold text-text-muted hover:text-foreground transition-colors">
-            <GitCompareArrows className="w-4 h-4" /> Bandingkan
-          </button>
+          {/* Reserved for future actions */}
         </div>
       </nav>
 
@@ -216,10 +215,24 @@ export default function PhotographerDetail() {
                                  <div className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-text-muted" /><span className="text-sm font-semibold">{pkg.delivery}</span></div>
                               </div>
                            </div>
-                           <div className="w-full sm:w-auto shrink-0">
-                              <button className={`w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold transition-all shadow-sm ${pkg.recommended ? "bg-primary hover:bg-primary-hover text-white hover:-translate-y-0.5" : "bg-surface-2 hover:bg-border text-foreground"}`}>
-                                 Pilih Paket
+                           <div className="w-full sm:w-auto shrink-0 flex flex-col gap-2">
+                              <button 
+                                onClick={() => {
+                                  addPackageToCompare({
+                                    id: `pkg-${PHOTOGRAPHER.name.replace(/\s+/g, '-').toLowerCase()}-${i}`,
+                                    photographerName: PHOTOGRAPHER.name,
+                                    photographerAvatar: PHOTOGRAPHER.avatar,
+                                    packageName: pkg.name,
+                                    packagePrice: pkg.price
+                                  });
+                                }}
+                                className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold transition-all shadow-sm bg-white border border-border text-foreground hover:bg-surface-2 hover:border-primary/50 text-sm flex items-center justify-center gap-2"
+                              >
+                                 <GitCompareArrows className="w-4 h-4" /> Bandingkan Paket
                               </button>
+                              <Link href={`/book/${PHOTOGRAPHER.name}?pkg=${pkg.name}`} className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold transition-all shadow-sm text-center block ${pkg.recommended ? "bg-primary hover:bg-primary-hover text-white hover:-translate-y-0.5" : "bg-surface-2 hover:bg-border text-foreground"} text-sm`}>
+                                 Pilih Paket
+                              </Link>
                            </div>
                         </div>
                      </div>
