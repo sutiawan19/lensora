@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+
 // --- Mock Data ---
 type SessionStatus = "Upcoming" | "Ongoing" | "Completed" | "Cancelled";
 
@@ -141,8 +142,8 @@ export default function MySessions() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 p-4 md:p-8 max-w-5xl">
-           <div className="mb-8">
+        <main className="flex-1 p-4 md:p-8 max-w-5xl pb-24 md:pb-8">
+           <div className="mb-6 md:mb-8 text-center sm:text-left">
              <h1 className="text-2xl md:text-3xl font-extrabold text-foreground mb-1">Sesi Pemotretan</h1>
              <p className="text-text-muted">Kelola jadwal, pantau status, dan unduh hasil foto Anda di sini.</p>
            </div>
@@ -191,28 +192,28 @@ export default function MySessions() {
                        </div>
 
                        {/* Content Card */}
-                       <div className="p-6 flex flex-col md:flex-row gap-8">
+                       <div className="p-5 md:p-6 flex flex-col lg:flex-row gap-6 md:gap-8">
                           <div className="flex-1 space-y-4">
-                             <div className="grid grid-cols-2 gap-4">
+                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                   <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Tanggal & Waktu</p>
-                                   <p className="font-semibold text-foreground text-sm flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary" /> {session.date}</p>
+                                   <p className="text-[10px] sm:text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Tanggal & Waktu</p>
+                                   <p className="font-semibold text-foreground text-sm flex items-center gap-1.5"><Calendar className="w-4 h-4 text-primary shrink-0" /> {session.date}</p>
                                    <p className="font-semibold text-text-muted text-sm ml-5.5 mt-0.5">{session.time} ({session.duration})</p>
                                 </div>
                                 <div>
-                                   <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Paket</p>
+                                   <p className="text-[10px] sm:text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Paket</p>
                                    <p className="font-semibold text-foreground text-sm">{session.package}</p>
                                 </div>
                              </div>
                              <div>
-                                <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Lokasi</p>
+                                <p className="text-[10px] sm:text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Lokasi</p>
                                 <p className="font-semibold text-foreground text-sm flex items-start gap-1.5"><MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" /> {session.location}</p>
                              </div>
                           </div>
 
                           {/* Progress Tracker (Horizontal) */}
-                          <div className="flex-1 border-t md:border-t-0 md:border-l border-border pt-6 md:pt-0 md:pl-8 flex flex-col justify-center">
-                             <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Status Progres</p>
+                          <div className="flex-1 border-t lg:border-t-0 lg:border-l border-border pt-6 lg:pt-0 lg:pl-8 flex flex-col justify-center">
+                             <p className="text-[10px] sm:text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Status Progres</p>
                              <div className="flex items-center justify-between relative">
                                 {/* Line background */}
                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-2 -translate-y-1/2 rounded-full z-0"></div>
@@ -237,17 +238,19 @@ export default function MySessions() {
                        </div>
 
                        {/* Footer Actions */}
-                       <div className="p-4 bg-surface-2 border-t border-border flex flex-col sm:flex-row gap-3 justify-end items-center">
-                          <p className="text-xs font-bold text-text-muted sm:mr-auto">ID Pesanan: {session.id}</p>
-                          <Link href="/dashboard/messages" className="w-full sm:w-auto px-6 py-2.5 bg-white border border-border hover:bg-surface-2 text-foreground text-sm font-bold rounded-xl transition-colors text-center block">
-                             Chat Fotografer
-                          </Link>
-                          <button 
-                            onClick={() => setSelectedSession(session)}
-                            className="w-full sm:w-auto px-6 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
-                          >
-                             Lihat Detail
-                          </button>
+                       <div className="p-4 bg-surface-2 border-t border-border flex flex-col md:flex-row gap-3 justify-end items-center">
+                          <p className="text-[10px] sm:text-xs font-bold text-text-muted md:mr-auto mb-2 md:mb-0">ID Pesanan: {session.id}</p>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                             <Link href="/dashboard/messages" className="w-full sm:w-auto px-6 py-2.5 bg-white border border-border hover:bg-surface-2 text-foreground text-sm font-bold rounded-xl transition-colors text-center block">
+                                Chat Fotografer
+                             </Link>
+                             <button 
+                               onClick={() => setSelectedSession(session)}
+                               className="w-full sm:w-auto px-6 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-colors shadow-sm"
+                             >
+                                Lihat Detail
+                             </button>
+                          </div>
                        </div>
                     </div>
                  ))
@@ -269,21 +272,21 @@ export default function MySessions() {
                  initial={{ opacity: 0, y: 50, scale: 0.95 }} 
                  animate={{ opacity: 1, y: 0, scale: 1 }} 
                  exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                 className="fixed inset-x-4 top-[5vh] bottom-[5vh] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[800px] bg-white z-50 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+                 className="fixed inset-0 sm:inset-x-4 sm:top-[5vh] sm:bottom-[5vh] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-[800px] bg-white z-50 sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
                >
                   {/* Modal Header */}
-                  <div className="px-6 py-4 border-b border-border flex items-center justify-between shrink-0 bg-surface">
-                     <h2 className="font-extrabold text-lg">Detail Sesi: {selectedSession.id}</h2>
+                  <div className="px-5 py-4 border-b border-border flex items-center justify-between shrink-0 bg-surface">
+                     <h2 className="font-extrabold text-base sm:text-lg">Detail Sesi: {selectedSession.id}</h2>
                      <button onClick={() => setSelectedSession(null)} className="p-2 bg-surface-2 rounded-full hover:bg-border text-text-muted transition-colors">
                         <X className="w-5 h-5" />
                      </button>
                   </div>
 
                   {/* Modal Body */}
-                  <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8">
+                  <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-8">
                      
                      {/* Top Section */}
-                     <div className="flex flex-col md:flex-row gap-8">
+                     <div className="flex flex-col md:flex-row gap-6 md:gap-8">
                         {/* Info Block */}
                         <div className="flex-1 space-y-6">
                            <div>
@@ -374,10 +377,10 @@ export default function MySessions() {
                   </div>
 
                   {/* Modal Footer */}
-                  <div className="px-6 py-4 border-t border-border shrink-0 flex justify-end gap-3 bg-surface">
-                     <button onClick={() => setSelectedSession(null)} className="px-6 py-2.5 bg-white border border-border hover:bg-surface-2 font-bold rounded-xl text-sm transition-colors">Tutup</button>
+                  <div className="px-5 py-4 border-t border-border shrink-0 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-surface">
+                     <button onClick={() => setSelectedSession(null)} className="w-full sm:w-auto px-6 py-2.5 bg-white border border-border hover:bg-surface-2 font-bold rounded-xl text-sm transition-colors">Tutup</button>
                      {selectedSession.status === "Completed" && (
-                        <button className="px-6 py-2.5 bg-foreground text-white font-bold rounded-xl text-sm hover:bg-foreground/90 transition-colors">
+                        <button className="w-full sm:w-auto px-6 py-2.5 bg-foreground text-white font-bold rounded-xl text-sm hover:bg-foreground/90 transition-colors">
                            Beri Ulasan
                         </button>
                      )}

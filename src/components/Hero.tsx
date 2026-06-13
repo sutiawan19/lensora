@@ -1,219 +1,133 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Upload, Calendar, Star, MapPin, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { Search, ImagePlus } from "lucide-react";
 
-export default function Hero() {
-  const [dateVisible, setDateVisible] = useState(false);
+const placeholders = [
+  "Cari 'Cinematic Wedding Jakarta'...",
+  "Cari 'Wisuda Outdoor Bandung'...",
+  "Cari 'Studio Foto Keluarga'...",
+  "Cari 'Moody Pre-wedding Bali'...",
+];
 
-  const floatingCards = [
-    { name: "Kezia S.", style: "Cinematic", rating: "5.0", img: "https://images.unsplash.com/photo-1554046920-90dc5823ca20?q=80&w=300&auto=format&fit=crop", avatar: "https://i.pravatar.cc/100?img=5", top: "6%", left: "0%", delay: 0 },
-    { name: "Rafi M.", style: "Korean Style", rating: "4.9", img: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=300&auto=format&fit=crop", avatar: "https://i.pravatar.cc/100?img=12", top: "56%", left: "4%", delay: 0.8 },
-    { name: "Studio Lumi", style: "Editorial", rating: "4.8", img: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300&auto=format&fit=crop", avatar: "https://i.pravatar.cc/100?img=9", top: "20%", right: "0%", delay: 0.4 },
-  ];
+export default function HeroV3() {
+  const [phIdx, setPhIdx] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhIdx((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden bg-[#FAFAFB]">
-      {/* Soft blob background — no gradient, just tinted blobs */}
-      <div className="absolute top-[-8%] left-[-4%] w-[480px] h-[480px] bg-primary/10 blob pointer-events-none" />
-      <div className="absolute bottom-[-8%] right-[-4%] w-[380px] h-[380px] bg-accent/8 blob pointer-events-none" style={{ animationDelay: "-4s" }} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-
-          {/* LEFT */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary-light border border-primary/20 text-sm font-semibold text-primary mb-7"
-            >
-              <Sparkles className="w-4 h-4 text-accent" />
-              Platform Fotografi Gen Z #1
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl lg:text-[4.25rem] font-extrabold leading-[1.1] tracking-tight mb-5 text-foreground"
-            >
-              Temukan Fotografer<br />
-              <span className="text-primary">Sesuai Vibes</span> Kamu.
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg text-text-muted mb-10 max-w-xl leading-relaxed"
-            >
-              Jelajahi ratusan fotografer berdasarkan estetika, anggaran, dan lokasi. Upload referensi dan biarkan Lensora menemukan kecocokan terbaik untukmu.
-            </motion.p>
-
-            {/* === SEARCH CTA CARD === */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-white rounded-2xl shadow-md border border-border p-3 flex flex-col gap-2"
-            >
-              {/* Row 1: Search + Upload */}
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="flex-1 flex items-center gap-3 bg-surface-2 rounded-xl px-4 py-3 border border-transparent focus-within:border-primary/50 transition-colors">
-                  <Search className="w-4 h-4 text-text-muted shrink-0" />
-                  <input
-                    type="text"
-                    placeholder="Cari gaya atau nama fotografer..."
-                    className="w-full bg-transparent text-sm outline-none text-foreground placeholder:text-text-muted"
-                  />
-                </div>
-                <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-border hover:border-primary/60 hover:bg-primary-light cursor-pointer transition-all group">
-                  <Upload className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" />
-                  <span className="text-sm font-semibold text-text-muted group-hover:text-primary transition-colors whitespace-nowrap">Upload Referensi</span>
-                  <input type="file" accept="image/*" className="hidden" />
-                </label>
-              </div>
-
-              {/* Row 2: Date + Search button */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setDateVisible(!dateVisible)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-text-muted hover:text-primary hover:bg-primary-light transition-all"
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  {dateVisible ? "Sembunyikan Tanggal" : "+ Tanggal (Opsional)"}
-                </button>
-                <div className="flex-1" />
-                <button className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 flex items-center gap-2">
-                  <Search className="w-4 h-4" />
-                  Cari Sekarang
-                </button>
-              </div>
-
-              {/* Animated Date Input */}
-              <AnimatePresence>
-                {dateVisible && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="flex items-center gap-3 bg-surface-2 rounded-xl px-4 py-3">
-                      <Calendar className="w-4 h-4 text-primary shrink-0" />
-                      <input type="date" className="w-full bg-transparent text-sm outline-none text-foreground" />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Popular Tags */}
-              <div className="flex flex-wrap gap-2 pt-1 border-t border-border mt-1">
-                <span className="text-xs text-text-muted font-medium pt-1">Populer:</span>
-                {["Graduation 🎓", "Pre-Wedding 💍", "Korean Style 🌸", "Cinematic 🎬"].map(tag => (
-                  <button key={tag} className="text-xs px-2.5 py-1 bg-surface-2 hover:bg-primary-light hover:text-primary text-text-muted rounded-full font-medium transition-colors">
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Social proof */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center gap-4 mt-7 text-sm"
-            >
-              <div className="flex -space-x-2">
-                {[11, 5, 12, 9].map((i) => (
-                  <img key={i} className="w-8 h-8 rounded-full border-2 border-white object-cover" src={`https://i.pravatar.cc/80?img=${i}`} alt="User" />
-                ))}
-              </div>
-              <p className="text-text-muted">Dipercaya <span className="font-bold text-foreground">12.000+</span> klien</p>
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-amber fill-amber" />
-                <span className="font-bold text-foreground text-sm">4.9</span>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* RIGHT: Floating cards */}
-          <div className="hidden lg:block relative h-[580px]">
-            {floatingCards.map((card, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + card.delay, duration: 0.6, type: "spring" }}
-                style={{ position: "absolute", top: card.top, left: card.left, right: (card as any).right }}
-                className="w-52"
-              >
-                <motion.div
-                  animate={{ y: [0, idx % 2 === 0 ? -12 : 10, 0] }}
-                  transition={{ repeat: Infinity, duration: 5 + idx, ease: "easeInOut" }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg border border-border"
-                >
-                  <div className="h-32 overflow-hidden relative">
-                    <img src={card.img} alt={card.name} className="w-full h-full object-cover" />
-                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-1">
-                      <Star className="w-3 h-3 text-amber fill-amber" /> {card.rating}
-                    </div>
-                  </div>
-                  <div className="p-3 flex items-center gap-2">
-                    <img src={card.avatar} alt={card.name} className="w-8 h-8 rounded-full border-2 border-white shadow-sm" />
-                    <div>
-                      <p className="text-xs font-bold text-foreground">{card.name}</p>
-                      <p className="text-[10px] text-primary font-semibold">{card.style}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-            ))}
-
-            {/* Center featured card */}
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.6, duration: 0.7, type: "spring" }}
-              style={{ position: "absolute", top: "28%", left: "16%", right: "8%" }}
-            >
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut", delay: 0.5 }}
-                className="bg-white rounded-3xl overflow-hidden shadow-xl border border-border"
-              >
-                <div className="h-52 overflow-hidden relative">
-                  <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=600&auto=format&fit=crop" alt="Featured" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40" />
-                  <div className="absolute bottom-3 left-3 right-3 bg-black/30 backdrop-blur-sm border border-white/20 rounded-xl p-2.5">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-white text-xs font-bold">Bella & Co</p>
-                      <span className="text-[10px] bg-accent text-white px-1.5 py-0.5 rounded-full font-semibold">Top Pick</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-[10px] text-white/80">
-                      <MapPin className="w-2.5 h-2.5" /> Bali · Mulai Rp 2,5jt
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex gap-1 flex-wrap">
-                    {["Pre-Wed", "Warm", "Outdoor"].map(t => (
-                      <span key={t} className="text-[10px] px-1.5 py-0.5 bg-primary-light text-primary rounded-full font-semibold">{t}</span>
-                    ))}
-                  </div>
-                  <button className="text-xs bg-primary hover:bg-primary-hover text-white px-3 py-1.5 rounded-lg font-semibold transition-colors">Pesan</button>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-
-        </div>
+    <section className="relative min-h-[90vh] bg-white overflow-hidden flex flex-col justify-center pt-32 pb-16">
+      
+      {/* Abstract Background Elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-1/4 left-[10%] w-72 h-72 bg-[#2563EB]/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-[10%] w-96 h-96 bg-[#FACC15]/15 rounded-full blur-3xl" />
       </div>
+
+      <div className="max-w-4xl mx-auto px-5 w-full text-center relative z-10 mt-10">
+        
+        {/* Animated Badge */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="inline-flex items-center justify-center gap-2 bg-[#FACC15] px-4 py-1.5 rounded-full mb-8 rotate-[-2deg] shadow-sm"
+        >
+          <div className="w-2 h-2 rounded-full bg-[#78350F] animate-pulse" />
+          <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">Marketplace Fotografi #1</span>
+        </motion.div>
+
+        {/* Massive Typography */}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="font-black tracking-tight leading-[1.1] text-[#0F172A] mb-6"
+          style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
+        >
+          Temukan photographer<br />
+          <span className="text-[#2563EB]">sesuai</span> style kamu.
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-slate-500 text-sm md:text-base max-w-xl mx-auto mb-10 leading-relaxed"
+        >
+          Lebih dari 500+ vendor siap mengabadikan momenmu. Cari berdasarkan gaya visual, lokasi, dan budget dalam hitungan detik.
+        </motion.p>
+
+        {/* Clean, Massive Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="relative max-w-2xl mx-auto w-full"
+        >
+          <div className="bg-white rounded-2xl md:rounded-[2rem] p-2 shadow-xl border border-slate-200 flex flex-col md:flex-row items-center gap-2 transition-all focus-within:border-[#2563EB] focus-within:ring-4 focus-within:ring-blue-500/10">
+            
+            {/* Search Input */}
+            <div className="flex-1 flex items-center gap-3 px-4 w-full h-14 md:border-r border-slate-100">
+              <Search className="w-5 h-5 text-slate-400 shrink-0" />
+              <div className="relative flex-1 h-full flex items-center overflow-hidden">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={phIdx}
+                    initial={{ y: 15, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -15, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute inset-y-0 left-0 flex items-center text-slate-400 font-medium text-sm md:text-base pointer-events-none truncate right-0"
+                  >
+                    {placeholders[phIdx]}
+                  </motion.p>
+                </AnimatePresence>
+                <input 
+                  type="text" 
+                  className="w-full h-full bg-transparent outline-none text-[#0F172A] font-bold z-10 text-sm md:text-base"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 w-full md:w-auto px-2 pb-2 md:p-0">
+              <button 
+                type="button"
+                className="w-12 h-12 md:h-14 bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-500 hover:text-[#2563EB] flex items-center justify-center rounded-xl md:rounded-full transition-all shrink-0"
+                title="Cari dengan foto (AI Style Match)"
+              >
+                <ImagePlus className="w-5 h-5" />
+              </button>
+              <button className="flex-1 md:w-auto px-8 h-12 md:h-14 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-black text-sm rounded-xl md:rounded-[1.5rem] transition-all shrink-0">
+                Cari Vendor
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Popular searches */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="mt-8 flex flex-wrap justify-center items-center gap-2 text-xs font-bold text-slate-400"
+        >
+          <span>Pencarian populer:</span>
+          {["Pre-wedding Bali", "Wisuda UGM", "Product Studio", "Cinematic"].map(tag => (
+            <button key={tag} className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors text-slate-600">
+              {tag}
+            </button>
+          ))}
+        </motion.div>
+      </div>
+
     </section>
   );
 }

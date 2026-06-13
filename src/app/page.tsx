@@ -1,54 +1,38 @@
-import { Camera } from "lucide-react";
+import type { Metadata } from "next";
+import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import WhyLensora from "@/components/WhyLensora";
-import CoreFeatures from "@/components/CoreFeatures";
-import HowItWorks from "@/components/HowItWorks";
-import Categories from "@/components/Categories";
-import FeaturedPhotographers from "@/components/FeaturedPhotographers";
-import Statistics from "@/components/Statistics";
-import VendorCTA from "@/components/VendorCTA";
+import ProblemSolution from "@/components/ProblemSolution";
+import ExplorePhotographers from "@/components/ExplorePhotographers";
+import CompareVendor from "@/components/CompareVendor";
+import AIStyleMatch from "@/components/AIStyleMatch";
+import BookingFlow from "@/components/BookingFlow";
+import ForVendors from "@/components/ForVendors";
 import Testimonials from "@/components/Testimonials";
-import Pricing from "@/components/Pricing";
 import FAQ from "@/components/FAQ";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
-import Link from "next/link";
+
+import LoadingScreen from "@/components/LoadingScreen";
+
+export const metadata: Metadata = {
+  title: "Lensora — Temukan Photographer Sesuai Style Kamu",
+  description:
+    "Platform untuk mempermudah mencari vendor photography sesuai harga & style yang diinginkan, sekaligus mempermudah vendor mengelola booking secara lebih profesional.",
+};
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-foreground">
-            <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center">
-              <Camera className="w-4 h-4" />
-            </div>
-            Lensora<span className="text-primary">.</span>
-          </Link>
-          <div className="hidden md:flex gap-8 items-center text-sm font-semibold text-text-muted">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-            <Link href="/explore" className="hover:text-primary transition-colors">Explore Photographer</Link>
-            <Link href="/about" className="hover:text-primary transition-colors">About</Link>
-            <Link href="/vendor-onboarding" className="hover:text-primary transition-colors">Become Vendor</Link>
-          </div>
-          <div className="flex gap-3 items-center">
-            <Link href="/login" className="text-sm font-bold text-text-muted hover:text-foreground transition-colors hidden sm:block">Masuk</Link>
-            <Link href="/register" className="px-5 py-2 bg-primary hover:bg-primary-hover rounded-xl text-white text-sm font-bold transition-colors shadow-sm">Daftar</Link>
-          </div>
-        </div>
-      </nav>
-
+    <main className="min-h-screen bg-white text-[#0F172A] flex flex-col overflow-x-hidden">
+      <LoadingScreen />
+      <Navbar />
       <Hero />
-      <WhyLensora />
-      <CoreFeatures />
-      <HowItWorks />
-      <Categories />
-      <FeaturedPhotographers />
-      <Statistics />
+      <ProblemSolution />
+      <ExplorePhotographers />
+      <CompareVendor />
+      <AIStyleMatch />
+      <BookingFlow />
+      <ForVendors />
       <Testimonials />
-      <VendorCTA />
-      <Pricing />
       <FAQ />
       <FinalCTA />
       <Footer />

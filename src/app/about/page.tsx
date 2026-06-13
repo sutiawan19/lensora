@@ -2,224 +2,436 @@
 
 import Link from "next/link";
 import { 
-  Camera, CheckCircle2, ShieldCheck, Star, Search, Quote, Target, ArrowRight
+  CheckCircle2, ShieldCheck, Star, Search, Quote, Target, ArrowRight, X, AtSign, Globe, Zap, Users, Camera
 } from "lucide-react";
 import Footer from "@/components/Footer";
-import { motion } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 const TEAM = [
   {
     id: 1,
-    name: "Alex Pratama",
+    name: "Sutiawan",
     role: "Product Designer",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop",
-    bio: "Obsessed with creating frictionless experiences. Former freelance photographer who understands the pain of manual bookings."
+    bio: "Paling anti sama UI yang ribet. Mantan fotografer freelance yang ngerti banget susahnya ngurusin bookingan manual via DM IG.",
+    skills: ["UI/UX", "User Research", "Prototyping"],
+    ig: "@hiiwanzz_",
+    web: "sutiawan.framer.app"
   },
   {
     id: 2,
     name: "Sarah Wijaya",
     role: "Frontend Engineer",
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop",
-    bio: "Turning coffee into clean, performant interfaces. Passionate about building tools that empower independent creators."
+    bio: "Tukang sulap desain jadi kode. Suka bikin animasi yang smooth biar experience di Lensora kerasa premium dan gak kaku.",
+    skills: ["React", "Next.js", "Framer Motion"],
+    ig: "@sarah.codes",
+    web: "sarahwiy.com"
   },
   {
     id: 3,
     name: "Dimas Anggara",
-    role: "Business & Operations",
+    role: "Business & Ops",
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop",
-    bio: "Ensuring every photographer gets paid on time and every client gets exactly what they booked. The glue of Lensora."
+    bio: "Yang mastiin semua fotografer dapet bayaran tepat waktu. Si paling jago nego dan mikirin strategi bisnis Lensora ke depan.",
+    skills: ["Strategy", "Partnerships", "Operations"],
+    ig: "@dimasangg",
+    web: "dimasanggara.co"
+  },
+  {
+    id: 4,
+    name: "Raka Syahputra",
+    role: "Backend Engineer",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop",
+    bio: "Penjaga server Lensora biar gak down pas lagi rame yang booking. Suka main Valorant kalau lagi nunggu compile selesai.",
+    skills: ["Node.js", "PostgreSQL", "Architecture"],
+    ig: "@rakasyah",
+    web: "rakasya.dev"
+  },
+  {
+    id: 5,
+    name: "Nabila Putri",
+    role: "Community Lead",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400&auto=format&fit=crop",
+    bio: "Jembatan antara Lensora sama para fotografer. Paling asik diajak ngobrol soal tren fotografi jaman now dan ngadain event.",
+    skills: ["Social Media", "Community", "Content"],
+    ig: "@nabilaputri",
+    web: "nabila.id"
   }
 ];
 
+const TRUST_ITEMS = [
+  { icon: CheckCircle2, title: "Fotografer Terverifikasi", desc: "Semua fotografer udah lewat proses seleksi dan verifikasi KTP.", color: "text-teal-600", bg: "bg-teal-50", border: "border-teal-100" },
+  { icon: Search, title: "Harga Transparan", desc: "Gak ada biaya tersembunyi. Apa yang kamu lihat, itu yang kamu bayar.", color: "text-[#2563EB]", bg: "bg-blue-50", border: "border-blue-100" },
+  { icon: Star, title: "Review Asli", desc: "Review cuma bisa dikasih sama klien yang beneran udah booking.", color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
+  { icon: ShieldCheck, title: "Pembayaran Aman", desc: "Uang aman di sistem kita sampai sesi foto selesai dengan baik.", color: "text-rose-500", bg: "bg-rose-50", border: "border-rose-100" }
+];
+
+const STATS = [
+  { value: "3.200+", label: "Fotografer Aktif", icon: Camera },
+  { value: "40.000+", label: "Sesi Selesai", icon: Star },
+  { value: "5", label: "Kota Besar", icon: Users },
+  { value: "4.9/5", label: "Rating Platform", icon: Zap },
+];
+
 export default function AboutPage() {
+  const [selectedMember, setSelectedMember] = useState<typeof TEAM[0] | null>(null);
+
   return (
-    <main className="min-h-screen bg-background text-foreground flex flex-col overflow-hidden">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-foreground">
-            <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center shadow-md">
-              <Camera className="w-4 h-4" />
-            </div>
-            Lensora<span className="text-primary">.</span>
-          </Link>
-          <div className="hidden md:flex gap-8 items-center text-sm font-semibold text-text-muted absolute left-1/2 -translate-x-1/2">
-            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-            <Link href="/explore" className="hover:text-primary transition-colors">Explore Photographer</Link>
-            <Link href="/about" className="text-primary transition-colors">About</Link>
-            <Link href="/vendor-onboarding" className="hover:text-primary transition-colors">Become Vendor</Link>
-          </div>
-          <div className="flex gap-3 items-center">
-            <Link href="/login" className="text-sm font-bold text-text-muted hover:text-foreground transition-colors hidden sm:block">Masuk</Link>
-            <Link href="/register" className="px-5 py-2 bg-primary hover:bg-primary-hover rounded-xl text-white text-sm font-bold transition-colors shadow-sm">Daftar</Link>
+    <main className="min-h-screen bg-white text-[#0F172A] flex flex-col overflow-hidden">
+      <Navbar />
+
+      {/* ─── 1. HERO ─────────────────────────────────────────────── */}
+      <section className="relative pt-28 md:pt-36 pb-0 overflow-hidden bg-[#F8FAFF]">
+        {/* background blobs */}
+        <div className="absolute top-0 left-[-10%] w-[600px] h-[600px] bg-[#2563EB]/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-[-5%] w-[400px] h-[400px] bg-[#2563EB]/8 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center pb-20">
+            {/* Left: text */}
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              {/* Landing-style badge */}
+              <div className="inline-flex items-center gap-2 bg-[#FACC15] px-4 py-1.5 rounded-full mb-8 rotate-[-2deg] shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-[#78350F] animate-pulse" />
+                <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">About Lensora</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0F172A] leading-[1.1] mb-6">
+                Cara Baru Cari<br />Fotografer.<br />
+                <span className="text-[#2563EB]">Gak Pake Ribet.</span>
+              </h1>
+              <p className="text-lg text-slate-500 leading-relaxed font-medium max-w-lg mb-10">
+                Lensora hadir buat ngebantu kamu nemuin fotografer yang pas, sekaligus bantu fotografer lokal ngembangin karir mereka. Transparan, aman, dan gak ada drama.
+              </p>
+            </motion.div>
+
+            {/* Right: floating polaroid collage */}
+            <motion.div 
+              initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
+              className="relative h-[420px] hidden lg:block"
+            >
+              <motion.div animate={{ y: [0, -12, 0] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-0 right-16 w-56 h-72 bg-white rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white rotate-[5deg]">
+                <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover" alt="" />
+              </motion.div>
+              <motion.div animate={{ y: [0, 16, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute bottom-0 right-0 w-48 h-60 bg-white rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white rotate-[-4deg]">
+                <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover" alt="" />
+              </motion.div>
+              <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute top-12 left-0 w-44 h-56 bg-white rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white rotate-[-6deg]">
+                <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover" alt="" />
+              </motion.div>
+              {/* floating badge over collage */}
+              <div className="absolute bottom-12 left-8 bg-white rounded-2xl px-4 py-3 shadow-xl border border-slate-100 flex items-center gap-3">
+                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-[#0F172A]">Booking Sukses</p>
+                  <p className="text-[10px] text-slate-400">3 menit lalu · Jakarta</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
-      </nav>
 
-      {/* 1. Hero Section */}
-      <section className="pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative min-h-[85vh] flex items-center justify-center bg-[#FAFAFB]">
-         {/* Background Blobs for Visual Depth */}
-         <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
-         <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-amber/10 rounded-full blur-[80px] pointer-events-none"></div>
-         
-         {/* Floating Elements (Background) */}
-         <motion.div 
-            animate={{ y: [0, -15, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute hidden lg:block top-40 left-[10%] w-32 h-40 rounded-3xl overflow-hidden shadow-2xl border-4 border-white rotate-[-6deg]"
-         >
-            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=300&auto=format&fit=crop" className="w-full h-full object-cover" />
-         </motion.div>
-         <motion.div 
-            animate={{ y: [0, 20, 0] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute hidden lg:block bottom-32 right-[10%] w-40 h-48 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white rotate-[8deg]"
-         >
-            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=400&auto=format&fit=crop" className="w-full h-full object-cover" />
-         </motion.div>
-
-         <div className="max-w-4xl mx-auto text-center relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/60 backdrop-blur-md border border-primary/20 rounded-full text-xs font-bold text-primary mb-8 shadow-sm">
-                  <ShieldCheck className="w-4 h-4" /> Trusted Photography Marketplace
-               </div>
-               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground mb-8 leading-[1.1]">
-                  Building a Better Way to <br className="hidden md:block"/> Find Photographers.
-               </h1>
-               <p className="text-xl text-text-muted leading-relaxed font-medium max-w-2xl mx-auto">
-                  Lensora was created to help people discover photographers more easily while helping photographers grow their business professionally.
-               </p>
-            </motion.div>
-         </div>
+        {/* Wave divider */}
+        <div className="w-full h-16 bg-white" style={{ clipPath: "ellipse(55% 100% at 50% 100%)" }} />
       </section>
 
-      {/* 2. The Story Behind Lensora */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative bg-white">
-         <div className="max-w-4xl mx-auto">
-            <motion.div 
-               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-               className="bg-white rounded-[3rem] p-10 md:p-16 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-border relative overflow-hidden"
+      {/* ─── 2. STATS STRIP ──────────────────────────────────────── */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {STATS.map((s, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="bg-[#F8FAFF] rounded-2xl p-6 text-center border border-slate-100"
+              >
+                <s.icon className="w-6 h-6 text-[#2563EB] mx-auto mb-3" />
+                <p className="text-3xl font-black text-[#0F172A] mb-1">{s.value}</p>
+                <p className="text-xs font-semibold text-slate-400">{s.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 3. STORY (split layout) ─────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-white relative overflow-hidden">
+
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+          {/* Left: big quote card */}
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            className="relative"
+          >
+            <div className="bg-[#0F172A] rounded-[3rem] p-10 md:p-12 relative overflow-hidden">
+              {/* <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#2563EB] via-teal-400 to-[#FACC15]" /> */}
+              <Quote className="w-12 h-12 text-white/20 mb-6" />
+              <p className="text-white text-xl md:text-2xl font-bold leading-relaxed">
+                "Kita bikin Lensora buat jawab satu pertanyaan: kenapa booking fotografer masih harus sesusah ini?"
+              </p>
+              <div className="mt-8 flex items-center gap-3">
+                <img src="https://i.pravatar.cc/60?img=11" className="w-10 h-10 rounded-full border-2 border-white/20" alt="" />
+                <div>
+                  <p className="text-white text-sm font-bold">Sutiawan</p>
+                  <p className="text-slate-400 text-xs">Co-Founder & Product Designer</p>
+                </div>
+              </div>
+            </div>
+            {/* decorative floating card */}
+            <div className="absolute -bottom-6 -right-6 bg-[#FACC15] rounded-2xl p-5 shadow-xl w-48">
+              <p className="text-[#0F172A] text-sm font-bold leading-tight">Dibuat di Indonesia 🇮🇩 untuk fotografer lokal.</p>
+            </div>
+          </motion.div>
+
+          {/* Right: story text */}
+          <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <div className="inline-flex items-center gap-2 bg-[#FACC15] px-4 py-1.5 rounded-full mb-6 rotate-[-2deg] shadow-sm">
+              <div className="w-2 h-2 rounded-full bg-[#78350F] animate-pulse" />
+              <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">Cerita Kita</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black text-[#0F172A] mb-6 leading-tight">Kenapa Ada<br />Lensora?</h2>
+            <div className="space-y-5 text-base text-slate-600 leading-relaxed font-medium">
+              <p>
+                Awalnya kita capek banget liat proses booking fotografer yang ribet. Buat nyari yang pas aja harus DM IG satu-satu, nungguin balasan <em>price list</em>, terus ribet nyocokin jadwal. Keburu <em>mood</em> ilang.
+              </p>
+              <p>
+                Di sisi lain, fotografer juga pusing. Waktu yang harusnya dipake buat motret malah habis buat ngurusin admin dan balas chat yang gak ada habisnya.
+              </p>
+              <p className="text-[#0F172A] font-extrabold text-lg">
+                Makanya kita bikin Lensora — satu platform yang bikin semuanya jadi <span className="text-[#2563EB]">simple, transparan, dan fair.</span>
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── 4. MEET THE TEAM ────────────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-white relative overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-blue-400/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-5 sm:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-[#FACC15] px-4 py-1.5 rounded-full mb-5 rotate-[-2deg] shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-[#78350F] animate-pulse" />
+                <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">Tim Kita</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-tight">Orang-Orang di<br />Balik Layar</h2>
+            </div>
+            <p className="text-slate-500 text-base font-medium max-w-sm md:text-right">
+              Tim kecil yang ambisius buat ngebangun ekosistem fotografi yang lebih baik.
+            </p>
+          </div>
+        </div>
+
+        {/* Team — 3 on top, 2 below centered layout */}
+        <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-6 md:gap-8 mt-4">
+          {TEAM.map((member, i) => (
+            <motion.div
+              key={member.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.07 }}
+              onClick={() => setSelectedMember(member)}
+              className="group cursor-pointer w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-22px)] max-w-[340px]"
             >
-               {/* Decorative Gradient Line */}
-               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-teal to-amber"></div>
-               
-               <div className="flex items-center gap-4 mb-10">
-                  <div className="w-14 h-14 bg-primary-light/50 rounded-2xl flex items-center justify-center shrink-0">
-                     <Quote className="w-6 h-6 text-primary" />
+              {/* Photo */}
+              <div className="relative h-[380px] rounded-[2rem] overflow-hidden shadow-md group-hover:shadow-2xl transition-shadow duration-500 border border-slate-100">
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                {/* gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/90 via-[#0F172A]/10 to-transparent" />
+
+                {/* "Detail" pill — hover only */}
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-1 group-hover:translate-y-0">
+                  <div className="bg-white/95 backdrop-blur-sm text-[#0F172A] text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md">
+                    Detail <ArrowRight className="w-3 h-3" />
                   </div>
-                  <h2 className="text-3xl font-black text-foreground">The Story Behind Lensora</h2>
-               </div>
-               
-               <div className="space-y-6 text-lg text-text-muted leading-relaxed font-medium">
-                  <p>
-                     It started when we realized how broken the photography booking process was. We noticed that incredibly talented photographers were spending hours managing DMs, negotiating prices, and organizing schedules manually instead of doing what they love—taking photos.
-                  </p>
-                  <p>
-                     On the other side, clients were frustrated. Finding the right photographer meant endless Instagram scrolling, trying to guess if their style matched, and dealing with unclear "DM for price" games. Comparing two photographers felt impossible.
-                  </p>
-                  <p className="text-foreground font-bold">
-                     We built Lensora to bridge this gap. We wanted a transparent, human-centric platform where style and budget align perfectly, and where independent photographers can run their business with dignity and efficiency.
-                  </p>
-               </div>
+                </div>
+
+                {/* Name + role at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <p className="text-white font-black text-2xl leading-tight mb-3">{member.name}</p>
+                  <div className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#2563EB] text-white shadow-lg">
+                    {member.role}
+                  </div>
+                </div>
+              </div>
+
+              {/* Skills strip attached below photo */}
+              <div className="mx-4 -mt-2 rounded-b-2xl px-5 py-4 bg-slate-50 border border-t-0 border-slate-200 flex flex-wrap gap-2 relative z-[-1] pt-6">
+                {member.skills.map(s => (
+                  <span key={s} className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-full">{s}</span>
+                ))}
+              </div>
             </motion.div>
-         </div>
+          ))}
+        </div>
       </section>
 
-      {/* 3. Meet The Team */}
-      <section className="py-32 bg-[#FAFAFB] px-4 sm:px-6 lg:px-8 relative">
-         <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2"></div>
-         
-         <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center mb-20">
-               <h2 className="text-4xl font-extrabold mb-4 text-foreground">Meet The Team</h2>
-               <p className="text-text-muted text-xl max-w-2xl mx-auto font-medium">A small group of passionate builders working to empower creators.</p>
+
+      {/* Team Member Modal */}
+      <AnimatePresence>
+        {selectedMember && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-[#0F172A]/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-8"
+            onClick={() => setSelectedMember(null)}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.92, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl relative"
+              onClick={e => e.stopPropagation()}
+            >
+              
+              <button 
+                onClick={() => setSelectedMember(null)}
+                className="absolute top-5 right-5 z-10 w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex flex-col md:flex-row">
+                <div className="md:w-2/5 h-56 md:h-auto relative">
+                  <img src={selectedMember.image} alt={selectedMember.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/60 to-transparent md:bg-gradient-to-r md:from-transparent md:to-transparent" />
+                </div>
+                
+                <div className="md:w-3/5 p-8 md:p-10 flex flex-col">
+                  <div className="inline-flex items-center gap-2 bg-[#FACC15] px-3 py-1 rounded-full mb-4 w-fit rotate-[-1deg]">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#78350F]" />
+                    <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">{selectedMember.role}</span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-black text-[#0F172A] mb-4">{selectedMember.name}</h3>
+                  <p className="text-slate-600 font-medium leading-relaxed mb-7 flex-1">
+                    {selectedMember.bio}
+                  </p>
+                  
+                  <div className="mb-7">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Superpowers</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedMember.skills.map(skill => (
+                        <span key={skill} className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-6 border-t border-slate-100">
+                    <button className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#2563EB] transition-colors">
+                      <AtSign className="w-4 h-4" /> {selectedMember.ig}
+                    </button>
+                    <span className="text-slate-200">|</span>
+                    <button className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#2563EB] transition-colors">
+                      <Globe className="w-4 h-4" /> {selectedMember.web}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── 5. TRUST GRID ───────────────────────────────────────── */}
+      <section className="py-24 md:py-32 bg-[#F8FAFF] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+            {/* left: text */}
+            <div className="lg:col-span-2">
+              <div className="inline-flex items-center gap-2 bg-[#FACC15] px-4 py-1.5 rounded-full mb-6 rotate-[-2deg] shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-[#78350F] animate-pulse" />
+                <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">Trust & Safety</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-tight mb-5">
+                Aman.<br />Terpercaya.<br /><span className="text-[#2563EB]">Terjamin.</span>
+              </h2>
+              <p className="text-slate-500 font-medium leading-relaxed">
+                Kita pastiin setiap transaksi aman, fotografernya asli, dan hasilnya sesuai ekspektasi. No drama, no hidden fees.
+              </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-               {TEAM.map((member, i) => (
-                  <motion.div 
-                     key={member.id} 
-                     initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-                     whileHover={{ y: -10 }}
-                     className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-primary/5 border border-border group relative overflow-hidden"
-                  >
-                     <div className="aspect-[4/5] rounded-[2rem] overflow-hidden relative mb-8">
-                        <img src={member.image} alt={member.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                        <div className="absolute bottom-4 left-4 right-4 flex justify-center">
-                           <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-xl text-xs font-black text-primary uppercase tracking-widest shadow-lg">
-                              {member.role}
-                           </div>
-                        </div>
-                     </div>
-                     <div className="px-2 text-center">
-                        <h3 className="font-extrabold text-2xl text-foreground mb-3">{member.name}</h3>
-                        <p className="text-sm font-medium text-text-muted leading-relaxed">{member.bio}</p>
-                     </div>
-                  </motion.div>
-               ))}
+            {/* right: 2x2 card grid */}
+            <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {TRUST_ITEMS.map((item, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }} 
+                  whileInView={{ opacity: 1, y: 0 }} 
+                  viewport={{ once: true }} 
+                  transition={{ duration: 0.4, delay: i * 0.08 }}
+                  className={`bg-white p-6 rounded-[1.5rem] border ${item.border} flex flex-col shadow-sm hover:shadow-lg transition-all duration-300 group`}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.bg} group-hover:scale-110 transition-transform`}>
+                    <item.icon className={`w-6 h-6 ${item.color}`} />
+                  </div>
+                  <h3 className="font-extrabold text-base mb-2 text-[#0F172A]">{item.title}</h3>
+                  <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
             </div>
-         </div>
+          </div>
+        </div>
       </section>
 
-      {/* 4. Why Trust Lensora */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
-         <div className="max-w-6xl mx-auto relative z-10">
-            <div className="text-center mb-20">
-               <h2 className="text-4xl font-extrabold mb-4">Built on Trust</h2>
-               <p className="text-text-muted text-xl font-medium max-w-2xl mx-auto">We don't just connect people, we ensure every session is safe, reliable, and exactly as promised.</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-               {[
-                  { icon: CheckCircle2, title: "Verified Photographer", desc: "Every professional is curated and identity-verified.", color: "text-teal", bg: "bg-teal/10" },
-                  { icon: Search, title: "Transparent Pricing", desc: "Clear packages, upfront costs, and zero hidden fees.", color: "text-primary", bg: "bg-primary-light/50" },
-                  { icon: Star, title: "Trusted Reviews", desc: "Authentic feedback strictly from real completed clients.", color: "text-amber", bg: "bg-amber/10" },
-                  { icon: ShieldCheck, title: "Safe Booking", desc: "Secure payments and protected dates for your peace of mind.", color: "text-red-500", bg: "bg-red-50" }
-               ].map((item, i) => (
-                  <motion.div 
-                     key={i}
-                     initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-                     whileHover={{ y: -8, boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)" }}
-                     className="bg-white p-8 rounded-[2rem] border border-border flex flex-col shadow-sm transition-all duration-300"
-                  >
-                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${item.bg}`}>
-                        <item.icon className={`w-7 h-7 ${item.color}`} />
-                     </div>
-                     <h3 className="font-extrabold text-lg mb-3 leading-tight">{item.title}</h3>
-                     <p className="text-sm text-text-muted font-medium leading-relaxed">{item.desc}</p>
-                  </motion.div>
-               ))}
-            </div>
-         </div>
-      </section>
+      {/* ─── 6. VISION — style FinalCTA ─────────────────────────── */}
+      <section className="pt-20 pb-32 md:pt-32 md:pb-48 bg-[#2563EB] overflow-hidden relative">
+        {/* Decorative large background text */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none select-none">
+          <p className="text-[20vw] font-black text-white/5 leading-none tracking-tighter whitespace-nowrap">LENSORA</p>
+        </div>
 
-      {/* 5. Vision */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-surface-2 text-center relative overflow-hidden">
-         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-5"></div>
-         <div className="max-w-4xl mx-auto relative z-10">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-               <Target className="w-16 h-16 text-primary mx-auto mb-8 drop-shadow-md" />
-               <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-8 text-foreground leading-tight">
-                  Building The Future of <br className="hidden sm:block" /> Photography Booking.
-               </h2>
-               <p className="text-xl md:text-2xl text-text-muted leading-relaxed font-medium max-w-3xl mx-auto">
-                  Our vision is simple: to become the default home for independent photographers to run their entire business, and the most reliable place for anyone to capture their most important memories.
-               </p>
-            </motion.div>
-         </div>
-      </section>
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-[#0F172A] rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-14 lg:p-16 shadow-2xl relative overflow-hidden"
+          >
+            {/* Subtle yellow accent blob */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FACC15]/20 rounded-full blur-3xl pointer-events-none -mt-32 -mr-32" />
 
-      {/* Final CTA */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-white text-center">
-         <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-10 tracking-tight">Ready To Find Your Photographer?</h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
-               <Link href="/explore" className="w-full sm:w-auto px-10 py-5 bg-primary hover:bg-primary-hover text-white text-lg font-extrabold rounded-2xl transition-all shadow-[0_10px_30px_-10px_rgba(37,99,235,0.4)] hover:shadow-[0_15px_40px_-10px_rgba(37,99,235,0.5)] hover:-translate-y-1 flex items-center justify-center gap-2">
-                  Explore Photographer <ArrowRight className="w-5 h-5" />
-               </Link>
-               <Link href="/vendor-onboarding" className="w-full sm:w-auto px-10 py-5 bg-white hover:bg-surface-2 border-2 border-border text-foreground text-lg font-extrabold rounded-2xl transition-all">
-                  Become Photographer
-               </Link>
+            {/* Landing-style badge */}
+            <div className="inline-flex items-center gap-2 bg-[#FACC15] px-4 py-1.5 rounded-full mb-8 rotate-[-2deg] shadow-sm">
+              <div className="w-2 h-2 rounded-full bg-[#78350F] animate-pulse" />
+              <span className="text-[10px] font-black tracking-widest uppercase text-[#78350F]">Visi Kita</span>
             </div>
-         </div>
+
+            <h2 className="font-black text-white leading-[1.05] tracking-tight mb-6" style={{ fontSize: "clamp(2rem, 4.5vw, 3.5rem)" }}>
+              Support Fotografer Lokal<br />
+              <span className="text-[#FACC15]">Sampai Atas.</span>
+            </h2>
+
+            <p className="text-slate-400 text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+              Kita pengen Lensora jadi rumah utama para kreator visual buat cari cuan dan tempat paling mudah buat siapa aja yang butuh jasa foto.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/explore" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#FACC15] hover:bg-[#EAB308] text-[#78350F] font-black text-base rounded-2xl transition-all hover:-translate-y-1 group">
+                Mulai Explore
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link href="/vendor-onboarding" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white/20 hover:border-white text-white font-black text-base rounded-2xl transition-all hover:-translate-y-1">
+                Daftar Jadi Vendor
+              </Link>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       <Footer />

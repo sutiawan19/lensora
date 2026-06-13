@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+
 // --- Mock Data ---
 const CONTACTS = [
   {
@@ -67,7 +68,7 @@ export default function Messages() {
   };
 
   return (
-    <main className="min-h-screen bg-surface-2 flex flex-col md:flex-row h-screen overflow-hidden">
+    <main className="h-[100dvh] bg-surface-2 flex flex-col md:flex-row overflow-hidden pb-[60px] md:pb-0">
       
       {/* ---------------- SIDEBAR NAVIGATION ---------------- */}
       <aside className="w-20 lg:w-64 bg-white border-r border-border flex flex-col shrink-0 hidden md:flex">
@@ -168,9 +169,9 @@ export default function Messages() {
                </div>
             </div>
             <div>
-               <button className="px-4 py-1.5 bg-surface-2 hover:bg-border text-foreground text-xs font-bold rounded-lg transition-colors border border-border">
+               <Link href="/dashboard/sessions" className="px-4 py-1.5 bg-surface-2 hover:bg-border text-foreground text-xs font-bold rounded-lg transition-colors border border-border">
                   View Booking
-               </button>
+               </Link>
             </div>
          </header>
 

@@ -1,43 +1,82 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Camera, Search, MapPin, Star, Filter, X, CheckCircle2, 
-  ChevronDown, LayoutGrid, SlidersHorizontal, GitCompareArrows,
-  UploadCloud, Calendar
+  Search, SlidersHorizontal, MapPin, Star, Camera, ChevronDown, CheckCircle2, X, Image as ImageIcon, Calendar,
+  UploadCloud, Filter, ImagePlus, Check, Heart, BadgeCheck, Zap, Sparkles
 } from "lucide-react";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
 
 // --- Mock Data ---
 const STYLE_TAGS = ["Korean", "Cinematic", "Warm Tone", "Graduation", "Moody", "Documentary"];
 const CATEGORIES = ["Wedding", "Pre-Wedding", "Graduation", "Product", "Fashion", "Event"];
 const LOCATIONS = ["Jakarta", "Bandung", "Surabaya", "Bali", "Yogyakarta"];
 
-const MOCK_PHOTOGRAPHERS = [
-  { id: 1, name: "Adrianus Dewa", rating: 4.9, projects: 124, location: "Jakarta Selatan", price: "Rp 1.500.000", tags: ["Cinematic", "Wedding"], cover: "https://images.unsplash.com/photo-1554046920-90dc5823ca20?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=11", available: true },
-  { id: 2, name: "Bella & Co", rating: 5.0, projects: 89, location: "Bali", price: "Rp 3.000.000", tags: ["Warm Tone", "Pre-Wedding"], cover: "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=5", available: true },
-  { id: 3, name: "Seno Visuals", rating: 4.8, projects: 210, location: "Bandung", price: "Rp 1.200.000", tags: ["Moody", "Graduation"], cover: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=12", available: false },
-  { id: 4, name: "Luminare Studio", rating: 4.9, projects: 56, location: "Surabaya", price: "Rp 2.000.000", tags: ["Korean", "Fashion"], cover: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=9", available: true },
-  { id: 5, name: "Dimas Story", rating: 4.7, projects: 145, location: "Yogyakarta", price: "Rp 900.000", tags: ["Documentary", "Event"], cover: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=33", available: true },
-  { id: 6, name: "Aesthetic Project", rating: 5.0, projects: 320, location: "Jakarta Pusat", price: "Rp 2.500.000", tags: ["Cinematic", "Product"], cover: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=47", available: false },
+const placeholders = [
+  "Cari 'Cinematic Wedding Jakarta'...",
+  "Cari 'Wisuda Outdoor Bandung'...",
+  "Cari 'Studio Foto Keluarga'...",
+  "Cari 'Moody Pre-wedding Bali'...",
 ];
 
+const MOCK_PHOTOGRAPHERS = [
+  { id: 1, name: "Adrianus Dewa", rating: 4.9, projects: 124, location: "Jakarta Selatan", price: "Rp 1.500.000", tags: ["Cinematic", "Wedding"], cover: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=11", available: true, verified: true, responseTime: "< 1 jam", portfolio: ["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 2, name: "Bella & Co", rating: 5.0, projects: 89, location: "Bali", price: "Rp 3.000.000", tags: ["Warm Tone", "Pre-Wedding"], cover: "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=5", available: true, verified: true, responseTime: "Dalam 10 menit", portfolio: ["https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 3, name: "Seno Visuals", rating: 4.8, projects: 210, location: "Bandung", price: "Rp 1.200.000", tags: ["Moody", "Graduation"], cover: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=12", available: false, verified: false, responseTime: "Dalam beberapa jam", portfolio: ["https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 4, name: "Luminare Studio", rating: 4.9, projects: 56, location: "Surabaya", price: "Rp 2.000.000", tags: ["Korean", "Fashion"], cover: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=9", available: true, verified: true, responseTime: "Super responsif", portfolio: ["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 5, name: "Dimas Story", rating: 4.7, projects: 145, location: "Yogyakarta", price: "Rp 900.000", tags: ["Documentary", "Event"], cover: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=33", available: true, verified: false, responseTime: "< 1 jam", portfolio: ["https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 6, name: "Aesthetic Project", rating: 5.0, projects: 320, location: "Jakarta Pusat", price: "Rp 2.500.000", tags: ["Cinematic", "Product"], cover: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=47", available: false, verified: true, responseTime: "Dalam 30 menit", portfolio: ["https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 7, name: "Fajar Visuals", rating: 4.8, projects: 156, location: "Surabaya", price: "Rp 1.100.000", tags: ["Vintage", "Pre-Wedding"], cover: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=33", available: true, verified: true, responseTime: "< 1 jam", portfolio: ["https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 8, name: "Sinar Pagi", rating: 4.9, projects: 201, location: "Malang", price: "Rp 850.000", tags: ["Documentary", "Outdoor"], cover: "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=5", available: true, verified: false, responseTime: "Dalam beberapa jam", portfolio: ["https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 9, name: "Elang Studio", rating: 4.6, projects: 78, location: "Jakarta Barat", price: "Rp 2.100.000", tags: ["Fashion", "Editorial"], cover: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=12", available: false, verified: true, responseTime: "Dalam 10 menit", portfolio: ["https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 10, name: "Aura Photos", rating: 5.0, projects: 405, location: "Semarang", price: "Rp 1.300.000", tags: ["Wedding", "Cinematic"], cover: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=11", available: true, verified: true, responseTime: "Super responsif", portfolio: ["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 11, name: "Memori Kita", rating: 4.7, projects: 92, location: "Yogyakarta", price: "Rp 950.000", tags: ["Warm Tone", "Graduation"], cover: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=47", available: true, verified: false, responseTime: "< 1 jam", portfolio: ["https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+  { id: 12, name: "Raja Fotografi", rating: 4.8, projects: 133, location: "Bali", price: "Rp 4.000.000", tags: ["Cinematic", "Pre-Wedding"], cover: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=900&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?img=12", available: true, verified: true, responseTime: "Dalam 10 menit", portfolio: ["https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=300", "https://images.unsplash.com/photo-1606800052052-a08af7148866?q=80&w=300", "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=300", "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=300", "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=300", "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=300"] },
+];
 export default function ExplorePhotographers() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [phIdx, setPhIdx] = useState(0);
+
+  // Vendor state
+  const [savedVendors, setSavedVendors] = useState<number[]>([]);
+  const [hoveredPreviewId, setHoveredPreviewId] = useState<number | null>(null);
+
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDateClick = () => {
+    if (dateInputRef.current && 'showPicker' in HTMLInputElement.prototype) {
+      try {
+        dateInputRef.current.showPicker();
+      } catch (error) {
+        dateInputRef.current.focus();
+      }
+    } else {
+      dateInputRef.current?.focus();
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhIdx((prev) => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const POPULAR_STYLES = [
-    { label: "Graduation", icon: "🎓" },
-    { label: "Korean Style", icon: "🌸" },
-    { label: "Cinematic", icon: "🎬" },
-    { label: "Pre-Wedding", icon: "💍" },
-    { label: "Warm Tone", icon: "✨" },
-    { label: "Candid", icon: "📸" },
+    { label: "Graduation"},
+    { label: "Korean Style"},
+    { label: "Cinematic"},
+    { label: "Pre-Wedding"},
+    { label: "Warm Tone"},
+    { label: "Candid"},
   ];
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,41 +87,37 @@ export default function ExplorePhotographers() {
   };
 
   const FilterContent = () => (
-    <div className="space-y-8">
-      {/* Search Filter */}
-      <div>
-        <label className="text-sm font-bold text-foreground mb-3 block">Pencarian</label>
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-          <input type="text" placeholder="Nama fotografer..." className="w-full pl-9 pr-3 py-2.5 bg-surface-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary transition-colors" />
-        </div>
-      </div>
-
+    <div className="space-y-6">
       {/* Categories */}
-      <div>
-        <label className="text-sm font-bold text-foreground mb-3 block">Kategori</label>
-        <div className="flex flex-col gap-2">
-          {CATEGORIES.map(cat => (
-            <label key={cat} className="flex items-center gap-3 cursor-pointer group">
-              <div className="w-4 h-4 rounded border border-border flex items-center justify-center group-hover:border-primary transition-colors"></div>
-              <span className="text-sm text-text-muted group-hover:text-foreground transition-colors">{cat}</span>
-            </label>
-          ))}
+      <div className="border-b border-slate-100 pb-6">
+        <label className="text-sm font-black text-[#0F172A] mb-4 block">Kategori</label>
+        <div className="flex flex-col gap-3">
+          {CATEGORIES.map(cat => {
+            const isSelected = activeTag === cat;
+            return (
+              <label key={cat} className="flex items-center gap-3 cursor-pointer group">
+                <div className="relative flex items-center justify-center w-5 h-5 rounded border border-slate-300 group-hover:border-[#2563EB] transition-colors bg-white">
+                  <Check className="w-3 h-3 text-white opacity-0 group-hover:opacity-20 transition-opacity" />
+                </div>
+                <span className="text-sm text-slate-600 group-hover:text-[#0F172A] transition-colors">{cat}</span>
+              </label>
+            );
+          })}
         </div>
       </div>
 
       {/* Style Tags */}
-      <div>
-        <label className="text-sm font-bold text-foreground mb-3 block">Style Visual</label>
+      <div className="border-b border-slate-100 pb-6">
+        <label className="text-sm font-black text-[#0F172A] mb-4 block">Style Visual</label>
         <div className="flex flex-wrap gap-2">
           {STYLE_TAGS.map(tag => (
             <button 
               key={tag}
               onClick={() => setActiveTag(tag === activeTag ? null : tag)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                 activeTag === tag 
-                  ? "bg-primary text-white border-primary" 
-                  : "bg-white text-text-muted border-border hover:border-primary/50"
+                  ? "bg-[#2563EB] text-white border-[#2563EB] shadow-sm" 
+                  : "bg-slate-50 text-slate-600 border-slate-200 hover:border-[#2563EB] hover:text-[#2563EB]"
               }`}
             >
               {tag}
@@ -92,32 +127,40 @@ export default function ExplorePhotographers() {
       </div>
 
       {/* Price Range */}
-      <div>
-        <label className="text-sm font-bold text-foreground mb-3 block">Range Harga</label>
+      <div className="border-b border-slate-100 pb-6">
+        <label className="text-sm font-black text-[#0F172A] mb-4 block">Range Harga</label>
         <div className="flex items-center gap-2">
-          <input type="text" placeholder="Min" className="w-full px-3 py-2 bg-surface-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary" />
-          <span className="text-text-muted">-</span>
-          <input type="text" placeholder="Max" className="w-full px-3 py-2 bg-surface-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary" />
+          <div className="relative w-full">
+             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">Rp</span>
+             <input type="text" placeholder="Min" className="w-full pl-8 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 transition-all text-[#0F172A]" />
+          </div>
+          <span className="text-slate-400">-</span>
+          <div className="relative w-full">
+             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">Rp</span>
+             <input type="text" placeholder="Max" className="w-full pl-8 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 transition-all text-[#0F172A]" />
+          </div>
         </div>
       </div>
 
       {/* Location */}
-      <div>
-        <label className="text-sm font-bold text-foreground mb-3 block">Lokasi</label>
+      <div className="border-b border-slate-100 pb-6">
+        <label className="text-sm font-black text-[#0F172A] mb-4 block">Lokasi</label>
         <div className="relative">
-          <select className="w-full px-3 py-2.5 bg-surface-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary appearance-none text-text-muted">
-            <option value="">Semua Lokasi</option>
+          <select className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 appearance-none text-[#0F172A] cursor-pointer transition-all">
+            <option value="">Semua Kota</option>
             {LOCATIONS.map(loc => <option key={loc} value={loc}>{loc}</option>)}
           </select>
-          <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+          <ChevronDown className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
         </div>
       </div>
 
       {/* Availability */}
       <div>
-        <label className="flex items-center gap-3 cursor-pointer group p-3 bg-surface-2 rounded-xl border border-border">
-          <div className="w-5 h-5 rounded border border-border flex items-center justify-center group-hover:border-primary transition-colors bg-white"></div>
-          <span className="text-sm font-bold text-foreground">Tersedia Minggu Ini</span>
+        <label className="flex items-center gap-3 cursor-pointer group p-4 bg-slate-50 hover:bg-blue-50/50 rounded-2xl border border-slate-200 hover:border-blue-200 transition-all">
+          <div className="relative flex items-center justify-center w-5 h-5 rounded border border-slate-300 group-hover:border-[#2563EB] transition-colors bg-white">
+             <Check className="w-3 h-3 text-white opacity-0 group-hover:opacity-20 transition-opacity" />
+          </div>
+          <span className="text-sm font-bold text-[#0F172A]">Tersedia Minggu Ini</span>
         </label>
       </div>
     </div>
@@ -125,136 +168,125 @@ export default function ExplorePhotographers() {
 
   return (
     <main className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Navbar (Simplified for explore page) */}
-      <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-border h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-foreground">
-          <div className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center">
-            <Camera className="w-4 h-4" />
-          </div>
-          Lensora<span className="text-primary">.</span>
-        </Link>
-        <div className="hidden md:flex gap-8 items-center text-sm font-semibold text-text-muted absolute left-1/2 -translate-x-1/2">
-           <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-           <Link href="/explore" className="text-primary transition-colors">Explore Photographer</Link>
-           <Link href="/about" className="hover:text-primary transition-colors">About</Link>
-           <Link href="/vendor-onboarding" className="hover:text-primary transition-colors">Become Vendor</Link>
-        </div>
-        <div className="flex gap-4 items-center">
-          <Link href="/dashboard" className="text-sm font-bold text-text-muted hover:text-foreground transition-colors hidden sm:block mt-0.5">Dashboard</Link>
-          <Link href="/login" className="px-4 py-2 bg-surface-2 hover:bg-border rounded-xl text-foreground text-sm font-bold transition-colors">Masuk</Link>
-        </div>
-      </nav>
+      <Navbar />
 
-      {/* Header Section */}
-      <section className="pt-28 pb-10 bg-white border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
-            Temukan Fotografer <span className="text-primary">Impianmu</span>
-          </h1>
-          <p className="text-lg text-text-muted max-w-2xl">
-            Eksplorasi ribuan talenta berdasarkan gaya, harga, lokasi, dan preferensi visualmu.
-          </p>
+      <div className="h-16" /> {/* Spacer for Absolute Navbar */}
+
+      {/* Sticky-like Search Header */}
+      <section className="sticky top-0 z-50 pt-5 pb-5 bg-background shadow-sm">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8">
           
-          {/* Premium Search Container */}
-          <div className="mt-10 max-w-5xl">
-             <div className="bg-white border border-border shadow-md rounded-[2rem] p-3 flex flex-col md:flex-row items-center gap-3 w-full">
+          {/* Search Container */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="relative w-full"
+          >
+             <div className="bg-white rounded-2xl md:rounded-[2rem] p-2 shadow-xl border border-slate-200 flex flex-col md:flex-row items-center gap-2 transition-all focus-within:border-[#2563EB] focus-within:ring-4 focus-within:ring-blue-500/10">
                 
-                {/* Field 1: Style / Photographer */}
-                <div className="flex-1 w-full bg-surface-2 hover:bg-surface border border-transparent hover:border-border transition-colors rounded-3xl px-5 py-4 flex items-center gap-3">
-                   <Search className="w-6 h-6 text-text-muted shrink-0" />
-                   <input 
-                     type="text" 
-                     value={searchQuery}
-                     onChange={(e) => setSearchQuery(e.target.value)}
-                     placeholder="Cari style, vibes, atau nama photographer..." 
-                     className="w-full bg-transparent outline-none text-base font-semibold text-foreground placeholder-text-muted" 
-                   />
-                </div>
-
-                {/* Field 2: Date */}
-                <div className="w-full md:w-48 bg-surface-2 hover:bg-surface border border-transparent hover:border-border transition-colors rounded-3xl px-5 py-4 flex flex-col justify-center relative cursor-pointer group shrink-0">
-                   <label className="text-[10px] font-extrabold text-text-muted uppercase tracking-wider mb-0.5 cursor-pointer">Tanggal Pemotretan</label>
-                   <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-foreground" />
-                      <input type="date" className="bg-transparent outline-none text-sm font-bold text-foreground cursor-pointer appearance-none w-full" />
+                {/* Search Input */}
+                <div className="flex-1 flex items-center gap-3 px-4 w-full h-14 md:border-r border-slate-100">
+                   <Search className="w-5 h-5 text-slate-400 shrink-0" />
+                   <div className="relative flex-1 h-full flex items-center overflow-hidden">
+                     <AnimatePresence mode="wait">
+                       {!searchQuery && (
+                         <motion.p
+                           key={phIdx}
+                           initial={{ y: 15, opacity: 0 }}
+                           animate={{ y: 0, opacity: 1 }}
+                           exit={{ y: -15, opacity: 0 }}
+                           transition={{ duration: 0.2 }}
+                           className="absolute inset-y-0 left-0 flex items-center text-slate-400 font-medium text-sm md:text-base pointer-events-none truncate right-0"
+                         >
+                           {placeholders[phIdx]}
+                         </motion.p>
+                       )}
+                     </AnimatePresence>
+                     <input 
+                       type="text" 
+                       value={searchQuery}
+                       onChange={(e) => setSearchQuery(e.target.value)}
+                       className="w-full h-full bg-transparent outline-none text-[#0F172A] font-bold z-10 text-sm md:text-base" 
+                     />
                    </div>
                 </div>
 
-                {/* Field 3: Upload Reference */}
-                <div className="w-full md:w-56 h-[72px] bg-blue-50/50 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all rounded-3xl relative overflow-hidden flex items-center shrink-0 cursor-pointer group">
-                   <input 
-                     type="file" 
-                     accept="image/*"
-                     onChange={handleFileUpload}
-                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                   />
-                   
-                   {uploadedImage ? (
-                      <div className="w-full h-full flex items-center p-2 gap-3 relative">
-                         <img src={uploadedImage} alt="Reference" className="w-14 h-14 rounded-2xl object-cover shadow-sm border border-border/50" />
-                         <div className="flex-1">
-                            <p className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider mb-0.5">Inspirasi</p>
-                            <p className="text-xs font-bold text-foreground truncate">1 Gambar Aktif</p>
-                         </div>
-                         <button 
-                           onClick={(e) => { e.preventDefault(); setUploadedImage(null); }}
-                           className="absolute top-2 right-2 p-1 bg-white/80 rounded-full text-text-muted hover:text-red-500 z-20"
-                         >
-                           <X className="w-3 h-3" />
-                         </button>
-                      </div>
-                   ) : (
-                      <div className="w-full px-5 flex items-center gap-3">
-                         <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm shrink-0 group-hover:scale-105 transition-transform">
-                            <UploadCloud className="w-5 h-5 text-blue-600" />
-                         </div>
-                         <div>
-                            <p className="text-[10px] font-extrabold text-blue-600 uppercase tracking-wider mb-0.5">Upload Inspirasi</p>
-                            <p className="text-xs font-bold text-text-muted leading-tight">Cari photographer dengan vibes serupa</p>
-                         </div>
-                      </div>
-                   )}
+                {/* Date Picker */}
+                <div 
+                   onClick={handleDateClick}
+                   className="flex-1 md:flex-none flex items-center gap-3 px-4 w-full md:w-48 xl:w-56 h-14 md:border-r border-slate-100 relative cursor-pointer group"
+                >
+                   <Calendar className="w-5 h-5 text-slate-400 shrink-0 pointer-events-none group-hover:text-[#2563EB] transition-colors" />
+                   <div className="relative flex-1 h-full flex items-center">
+                     <span className={`font-bold text-sm pointer-events-none ${selectedDate ? 'text-[#0F172A]' : 'text-slate-400 font-medium group-hover:text-[#0F172A] transition-colors'}`}>
+                       {selectedDate ? new Date(selectedDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : "Pilih Tanggal"}
+                     </span>
+                     <input 
+                       ref={dateInputRef}
+                       type="date" 
+                       value={selectedDate}
+                       onChange={(e) => setSelectedDate(e.target.value)}
+                       className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+                     />
+                   </div>
                 </div>
 
-                {/* Search CTA */}
-                <button className="w-full md:w-auto px-8 h-[72px] bg-blue-600 hover:bg-blue-700 text-white rounded-3xl font-extrabold text-base transition-colors shadow-sm shrink-0">
-                   Cari Photographer
-                </button>
-             </div>
-
-             {/* Popular Style Quick CTA */}
-             <div className="mt-6">
-                <div className="flex flex-wrap items-center gap-3">
-                   <span className="text-sm font-extrabold text-foreground mr-2">🔥 Style Populer:</span>
-                   {POPULAR_STYLES.map(style => (
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 w-full md:w-auto px-2 pb-2 md:p-0">
+                  <div className="relative">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      title="Upload referensi foto"
+                    />
+                    <button 
+                      type="button"
+                      className={`w-12 h-12 md:h-14 border flex items-center justify-center rounded-xl md:rounded-full transition-all shrink-0 relative overflow-hidden ${
+                         uploadedImage 
+                         ? "border-[#2563EB] bg-[#2563EB]/10 text-[#2563EB]" 
+                         : "bg-slate-50 hover:bg-slate-100 border-slate-100 text-slate-500 hover:text-[#2563EB]"
+                      }`}
+                    >
+                      {uploadedImage ? (
+                        <>
+                          <img src={uploadedImage} alt="Uploaded" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+                          <CheckCircle2 className="w-5 h-5 relative z-10 text-[#2563EB]" />
+                        </>
+                      ) : (
+                        <ImagePlus className="w-5 h-5" />
+                      )}
+                    </button>
+                    {uploadedImage && (
                       <button 
-                        key={style.label}
-                        onClick={() => setSearchQuery(style.label)}
-                        className={`px-4 py-2 rounded-full text-xs font-bold transition-all border ${
-                           searchQuery === style.label 
-                           ? "bg-blue-600 text-white border-blue-600 shadow-md" 
-                           : "bg-white text-text-muted border-border hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
-                        }`}
+                         onClick={(e) => { e.preventDefault(); setUploadedImage(null); }}
+                         className="absolute -top-2 -right-2 p-1 bg-white border border-slate-200 rounded-full text-slate-400 hover:text-red-500 z-20 shadow-sm"
                       >
-                         <span className="mr-1.5">{style.icon}</span>
-                         {style.label}
+                         <X className="w-3 h-3" />
                       </button>
-                   ))}
+                    )}
+                  </div>
+
+                  <button className="flex-1 md:w-auto px-8 h-12 md:h-14 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-black text-sm rounded-xl md:rounded-[1.5rem] transition-all shrink-0">
+                    Cari Vendor
+                  </button>
                 </div>
              </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Main Layout */}
-      <section className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex gap-8 relative">
+      <section className="flex-1 max-w-7xl mx-auto px-5 sm:px-8 py-8 w-full flex gap-8 relative">
         
         {/* Desktop Sidebar Filter */}
         <aside className="hidden lg:block w-72 shrink-0">
-          <div className="sticky top-24 bg-white p-6 rounded-3xl border border-border shadow-sm">
-             <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
-                <h2 className="font-extrabold flex items-center gap-2"><SlidersHorizontal className="w-4 h-4"/> Filter</h2>
-                <button className="text-xs font-bold text-text-muted hover:text-primary transition-colors">Reset</button>
+          <div className="sticky top-36 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                <h2 className="font-extrabold flex items-center gap-2 text-[#0F172A]"><SlidersHorizontal className="w-4 h-4"/> Filter</h2>
+                <button className="text-xs font-bold text-slate-400 hover:text-[#2563EB] transition-colors">Reset</button>
              </div>
              <FilterContent />
           </div>
@@ -276,65 +308,142 @@ export default function ExplorePhotographers() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-             {MOCK_PHOTOGRAPHERS.map((photographer, idx) => (
+             {MOCK_PHOTOGRAPHERS.map((photographer, idx) => {
+                const isSaved = savedVendors.includes(photographer.id);
+                const isPreviewHovered = hoveredPreviewId === photographer.id;
+
+                return (
                 <motion.div 
                   key={photographer.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="bg-white rounded-3xl border border-border overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col relative"
+                  className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden group shadow-sm hover:shadow-2xl hover:border-slate-300 transition-all duration-300 flex flex-col relative"
                 >
-                  {/* Availability Badge */}
-                  {photographer.available && (
-                     <div className="absolute top-4 right-4 z-10 bg-teal/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 shadow-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div> Tersedia
+                  {/* Availability Badge (Top Left) */}
+                  {selectedDate && (
+                     <div className={`absolute top-4 left-4 z-20 px-3 py-1.5 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 shadow-sm backdrop-blur-md ${
+                        photographer.available ? "bg-white/95 text-teal-600" : "bg-white/95 text-red-500"
+                     }`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${photographer.available ? "bg-teal-500" : "bg-red-500"} ${photographer.available ? "animate-pulse" : ""}`}></div>
+                        {photographer.available ? "Tersedia di tanggal terpilih" : "Penuh di tanggal terpilih"}
                      </div>
                   )}
 
+                  {/* AI Match Confidence */}
+                  {uploadedImage && (
+                     <div className={`absolute ${selectedDate ? 'top-12' : 'top-4'} left-4 z-20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-full text-[10px] font-extrabold flex items-center gap-1.5 shadow-sm backdrop-blur-md`}>
+                        <Sparkles className="w-3 h-3 text-yellow-300" /> 92% Match
+                     </div>
+                  )}
+
+                  {/* Save/Wishlist Button (Top Right) */}
+                  <button 
+                     onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSavedVendors(prev => 
+                           prev.includes(photographer.id) 
+                           ? prev.filter(id => id !== photographer.id) 
+                           : [...prev, photographer.id]
+                        );
+                     }}
+                     className="absolute top-4 right-4 z-20 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white hover:scale-110 transition-all duration-200 group/btn"
+                  >
+                     <Heart className={`w-4 h-4 transition-colors ${isSaved ? "fill-red-500 text-red-500" : "text-slate-400 group-hover/btn:text-red-500"}`} />
+                  </button>
+
                   {/* Cover Image */}
                   <div className="w-full aspect-[4/3] overflow-hidden relative">
-                    <img src={photographer.cover} alt={photographer.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <img src={photographer.cover} alt={photographer.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    
+                    {/* Dark gradient overlay for Quick Preview button */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                        <button 
+                           onClick={() => setHoveredPreviewId(photographer.id)}
+                           onMouseEnter={() => setHoveredPreviewId(photographer.id)}
+                           className="bg-white/20 hover:bg-white backdrop-blur-md border border-white/30 text-white hover:text-[#0F172A] px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-lg"
+                        >
+                           <ImageIcon className="w-4 h-4" /> Quick Preview
+                        </button>
+                    </div>
+
+                    {/* Floating Gallery (Quick Preview) */}
+                    <AnimatePresence>
+                       {isPreviewHovered && (
+                          <motion.div 
+                             initial={{ opacity: 0, scale: 0.95 }}
+                             animate={{ opacity: 1, scale: 1 }}
+                             exit={{ opacity: 0, scale: 0.95 }}
+                             onMouseLeave={() => setHoveredPreviewId(null)}
+                             className="absolute inset-0 z-30 bg-[#0F172A]/95 backdrop-blur-xl p-3 flex flex-col justify-center"
+                          >
+                             <div className="grid grid-cols-3 gap-2 h-full">
+                                {photographer.portfolio?.map((img, i) => (
+                                   <div key={i} className="w-full h-full rounded-lg overflow-hidden">
+                                      <img src={img} alt={`portfolio ${i}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+                                   </div>
+                                ))}
+                             </div>
+                             <button 
+                                onClick={(e) => { e.stopPropagation(); setHoveredPreviewId(null); }}
+                                className="absolute top-2 right-2 p-1.5 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                             >
+                                <X className="w-3 h-3" />
+                             </button>
+                          </motion.div>
+                       )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Content */}
-                  <div className="p-5 flex flex-col flex-1 relative bg-white">
-                    {/* Avatar (overlapping) */}
-                    <img src={photographer.avatar} alt={photographer.name} className="w-14 h-14 rounded-full border-4 border-white shadow-sm absolute -top-7 left-5 object-cover" />
+                  <div className="p-6 flex flex-col flex-1 relative bg-white">
+                    {/* Avatar */}
+                    <img src={photographer.avatar} alt={photographer.name} className="w-16 h-16 rounded-full border-4 border-white shadow-md absolute -top-8 left-6 object-cover" />
                     
                     <div className="mt-6 flex justify-between items-start">
                        <div>
-                          <h3 className="font-extrabold text-lg text-foreground leading-tight">{photographer.name}</h3>
-                          <div className="flex items-center gap-1 text-xs font-semibold text-text-muted mt-1">
-                             <MapPin className="w-3 h-3" /> {photographer.location}
+                          <div className="flex items-center gap-1.5">
+                             {photographer.verified && (
+                                <BadgeCheck className="w-5 h-5 text-[#2563EB] fill-blue-50 shrink-0" />
+                             )}
+                             <h3 className="font-extrabold text-xl text-[#0F172A] leading-tight truncate">{photographer.name}</h3>
+                          </div>
+                          
+                          <div className="flex items-center gap-1 text-xs font-semibold text-slate-500 mt-1.5">
+                             <MapPin className="w-3.5 h-3.5" /> {photographer.location}
+                          </div>
+                          <div className="flex items-center gap-1 text-xs font-medium text-slate-400 mt-1">
+                             <Zap className="w-3.5 h-3.5 text-amber-500" /> {photographer.responseTime}
                           </div>
                        </div>
-                       <div className="flex items-center gap-1 bg-amber/10 px-2 py-1 rounded-md">
-                          <Star className="w-3.5 h-3.5 text-amber fill-amber" />
-                          <span className="text-xs font-extrabold text-amber">{photographer.rating}</span>
+                       <div className="flex flex-col items-end gap-1">
+                          <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-100">
+                             <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                             <span className="text-xs font-extrabold text-amber-600">{photographer.rating}</span>
+                          </div>
                        </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-1.5 mt-4 mb-4">
+                    <div className="flex flex-wrap gap-1.5 mt-5 mb-5">
                        {photographer.tags.map(tag => (
-                         <span key={tag} className="px-2.5 py-1 bg-surface-2 text-text-muted text-[10px] font-bold rounded-full">{tag}</span>
+                         <span key={tag} className="px-3 py-1 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold rounded-full">{tag}</span>
                        ))}
                     </div>
 
-                    <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
+                    <div className="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between">
                        <div>
-                          <p className="text-[10px] text-text-muted uppercase tracking-wider font-bold mb-0.5">Mulai dari</p>
-                          <p className="font-extrabold text-foreground text-sm">{photographer.price}</p>
+                          <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">Mulai dari</p>
+                          <p className="font-black text-[#0F172A] text-base">{photographer.price}</p>
                        </div>
-                       <div className="flex gap-2">
-                          <Link href={`/photographer/${photographer.id}`} className="px-6 py-2.5 w-full bg-foreground hover:bg-primary text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center">
-                             Lihat Profil
-                          </Link>
-                       </div>
+                       <Link href={`/photographer/${photographer.id}`} className="px-6 py-3 bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-0.5">
+                          Lihat Profil
+                       </Link>
                     </div>
                   </div>
                 </motion.div>
-             ))}
+                );
+             })}
           </div>
 
           {/* Pagination */}

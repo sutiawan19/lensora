@@ -126,7 +126,7 @@ function CompareContent() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
          <div className="mb-10 text-center">
             <h1 className="text-3xl font-extrabold text-foreground mb-2">Perbandingan Paket</h1>
             <p className="text-text-muted">Bandingkan detail dan fasilitas paket untuk memilih yang paling tepat.</p>

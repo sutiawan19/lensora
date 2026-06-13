@@ -4,6 +4,7 @@ import { Camera, Search, Bell, Settings, LogOut, Calendar, MessageSquare, Plus }
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+
 export default function Dashboard() {
   return (
     <main className="min-h-screen bg-surface-2 flex flex-col md:flex-row">
@@ -81,30 +82,56 @@ export default function Dashboard() {
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 p-4 md:p-8">
-           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-             <h1 className="text-2xl md:text-3xl font-extrabold text-foreground mb-1">Halo, Budi! 👋</h1>
+        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">
+           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 md:mb-8 text-center sm:text-left">
+             <h1 className="text-3xl md:text-3xl font-extrabold text-foreground mb-1">Halo, Budi! 👋</h1>
              <p className="text-text-muted">Siap mengabadikan momen baru hari ini?</p>
            </motion.div>
 
+           {/* Quick Access Section */}
+           <div className="mb-8">
+              <h2 className="text-lg font-bold text-foreground mb-4">Aksi Cepat</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 <Link href="/explore" className="bg-white p-4 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 bg-primary-light rounded-2xl flex items-center justify-center"><Search className="w-5 h-5 text-primary" /></div>
+                    <div>
+                       <p className="text-sm font-bold text-foreground">Cari Fotografer</p>
+                    </div>
+                 </Link>
+                 <Link href="/dashboard/sessions" className="bg-white p-4 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 bg-surface-2 rounded-2xl flex items-center justify-center"><Calendar className="w-5 h-5 text-text-muted" /></div>
+                    <div>
+                       <p className="text-sm font-bold text-foreground">Booking Saya</p>
+                    </div>
+                 </Link>
+                 <Link href="/compare" className="bg-white p-4 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 bg-surface-2 rounded-2xl flex items-center justify-center"><Plus className="w-5 h-5 text-text-muted" /></div>
+                    <div>
+                       <p className="text-sm font-bold text-foreground">Compare Vendor</p>
+                    </div>
+                 </Link>
+                 <Link href="/explore" className="bg-white p-4 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow flex flex-col items-center text-center gap-3">
+                    <div className="w-12 h-12 bg-primary-light rounded-2xl flex items-center justify-center"><Camera className="w-5 h-5 text-primary" /></div>
+                    <div>
+                       <p className="text-sm font-bold text-foreground">Upload Style</p>
+                    </div>
+                 </Link>
+              </div>
+           </div>
+
            {/* Stats / Quick Actions */}
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <Link href="/explore" className="bg-white p-6 rounded-3xl border border-border shadow-sm flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
-                 <div>
-                    <p className="text-sm font-bold text-text-muted mb-1">Cari Fotografer Baru</p>
-                    <p className="text-xs text-primary font-semibold">Gunakan fitur Style Match</p>
-                 </div>
-                 <div className="w-12 h-12 bg-primary-light rounded-2xl flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-primary" />
-                 </div>
-              </Link>
-              <div className="bg-white p-6 rounded-3xl border border-border shadow-sm">
-                 <p className="text-sm font-bold text-text-muted mb-1">Sesi Aktif</p>
+           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+              <div className="bg-white p-5 md:p-6 rounded-3xl border border-border shadow-sm flex flex-col justify-center">
+                 <p className="text-xs md:text-sm font-bold text-text-muted mb-1">Sesi Aktif</p>
                  <p className="text-3xl font-extrabold text-foreground">1</p>
               </div>
-              <div className="bg-white p-6 rounded-3xl border border-border shadow-sm">
-                 <p className="text-sm font-bold text-text-muted mb-1">Pesan Belum Dibaca</p>
+              <div className="bg-white p-5 md:p-6 rounded-3xl border border-border shadow-sm flex flex-col justify-center">
+                 <p className="text-xs md:text-sm font-bold text-text-muted mb-1">Pesan Baru</p>
                  <p className="text-3xl font-extrabold text-foreground">2</p>
+              </div>
+              <div className="bg-white p-5 md:p-6 rounded-3xl border border-border shadow-sm flex flex-col justify-center col-span-2 sm:col-span-2 lg:col-span-1">
+                 <p className="text-xs md:text-sm font-bold text-text-muted mb-1">Sesi Selesai</p>
+                 <p className="text-3xl font-extrabold text-foreground">0</p>
               </div>
            </div>
 
@@ -114,9 +141,9 @@ export default function Dashboard() {
                  <h2 className="font-bold text-lg text-foreground">Sesi Mendatang</h2>
                  <Link href="/dashboard/sessions" className="text-sm font-semibold text-primary hover:text-primary-hover">Lihat Semua</Link>
               </div>
-              <div className="p-6">
-                 <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start p-4 rounded-2xl border border-border bg-surface-2">
-                    <img src="https://images.unsplash.com/photo-1554046920-90dc5823ca20?q=80&w=300&auto=format&fit=crop" className="w-24 h-24 rounded-xl object-cover shadow-sm" alt="Photographer" />
+              <div className="p-5 md:p-6">
+                 <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-center sm:items-start p-4 rounded-2xl border border-border bg-surface-2">
+                    <img src="https://images.unsplash.com/photo-1554046920-90dc5823ca20?q=80&w=300&auto=format&fit=crop" className="w-24 h-24 md:w-24 md:h-24 rounded-xl object-cover shadow-sm" alt="Photographer" />
                     <div className="flex-1 text-center sm:text-left">
                        <span className="inline-block px-2.5 py-1 bg-white border border-border text-xs font-bold rounded-lg mb-2">Cinematic Style</span>
                        <h3 className="font-bold text-foreground text-lg mb-1">Adrianus Dewa</h3>
@@ -124,15 +151,16 @@ export default function Dashboard() {
                          <Calendar className="w-4 h-4" /> 15 Juni 2026 • 10:00 AM
                        </p>
                     </div>
-                    <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
-                       <button className="flex-1 px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-colors">Detail</button>
-                       <Link href="/dashboard/messages" className="flex-1 px-4 py-2 bg-white hover:bg-surface-2 border border-border text-foreground text-sm font-bold rounded-xl transition-colors text-center block">Chat</Link>
+                    <div className="flex flex-col sm:flex-col gap-2 w-full sm:w-auto mt-4 sm:mt-0">
+                       <button className="w-full sm:w-auto px-6 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-bold rounded-xl transition-colors">Detail</button>
+                       <Link href="/dashboard/messages" className="w-full sm:w-auto px-6 py-2.5 bg-white hover:bg-surface-2 border border-border text-foreground text-sm font-bold rounded-xl transition-colors text-center block">Chat</Link>
                     </div>
                  </div>
               </div>
            </div>
         </main>
       </div>
+
     </main>
   );
 }
