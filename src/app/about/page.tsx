@@ -13,52 +13,52 @@ const TEAM = [
   {
     id: 1,
     name: "Sutiawan",
-    role: "Product Designer",
+    role: "Product Manager & Full Stack Developer",
     image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&auto=format&fit=crop",
     bio: "Paling anti sama UI yang ribet. Mantan fotografer freelance yang ngerti banget susahnya ngurusin bookingan manual via DM IG.",
-    skills: ["UI/UX", "User Research", "Prototyping"],
+    skills: ["Product", "Full Stack", "Development"],
     ig: "@hiiwanzz_",
     web: "sutiawan.framer.app"
   },
   {
     id: 2,
-    name: "Sarah Wijaya",
-    role: "Frontend Engineer",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop",
+    name: "Salwa",
+    role: "Front-end Developer & QA Tester",
+    image: "/images/team/Salwa.jpeg",
     bio: "Tukang sulap desain jadi kode. Suka bikin animasi yang smooth biar experience di Lensora kerasa premium dan gak kaku.",
-    skills: ["React", "Next.js", "Framer Motion"],
-    ig: "@sarah.codes",
-    web: "sarahwiy.com"
+    skills: ["React", "Next.js", "QA Testing"],
+    ig: "@salwa",
+    web: "salwa.dev"
   },
   {
     id: 3,
-    name: "Dimas Anggara",
-    role: "Business & Ops",
+    name: "Athiyya",
+    role: "Back-end Developer",
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=400&auto=format&fit=crop",
-    bio: "Yang mastiin semua fotografer dapet bayaran tepat waktu. Si paling jago nego dan mikirin strategi bisnis Lensora ke depan.",
-    skills: ["Strategy", "Partnerships", "Operations"],
-    ig: "@dimasangg",
-    web: "dimasanggara.co"
+    bio: "Penjaga server Lensora biar gak down pas lagi rame yang booking. Suka main Valorant kalau lagi nunggu compile selesai.",
+    skills: ["Node.js", "PostgreSQL", "API Design"],
+    ig: "@athiyya",
+    web: "athiyya.dev"
   },
   {
     id: 4,
-    name: "Raka Syahputra",
-    role: "Backend Engineer",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop",
-    bio: "Penjaga server Lensora biar gak down pas lagi rame yang booking. Suka main Valorant kalau lagi nunggu compile selesai.",
-    skills: ["Node.js", "PostgreSQL", "Architecture"],
-    ig: "@rakasyah",
-    web: "rakasya.dev"
+    name: "Rasya",
+    role: "Social Media Specialist",
+    image: "/images/team/Rasya.jpeg",
+    bio: "Jembatan antara Lensora sama para fotografer. Paling asik diajak ngobrol soal tren fotografi jaman now dan ngadain event.",
+    skills: ["Social Media", "Content", "Copywriting"],
+    ig: "@rasya",
+    web: "rasya.dev"
   },
   {
     id: 5,
-    name: "Nabila Putri",
-    role: "Community Lead",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400&auto=format&fit=crop",
-    bio: "Jembatan antara Lensora sama para fotografer. Paling asik diajak ngobrol soal tren fotografi jaman now dan ngadain event.",
-    skills: ["Social Media", "Community", "Content"],
-    ig: "@nabilaputri",
-    web: "nabila.id"
+    name: "Disti",
+    role: "Business Analyst & Administrator",
+    image: "/images/team/Disti.jpeg",
+    bio: "Yang mastiin semua fotografer dapet bayaran tepat waktu. Si paling jago nego dan mikirin strategi bisnis Lensora ke depan.",
+    skills: ["Analysis", "Operations", "Finance"],
+    ig: "@disti",
+    web: "disti.dev"
   }
 ];
 
