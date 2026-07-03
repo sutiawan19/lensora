@@ -14,7 +14,7 @@ export interface Order {
   phone: string;
   package: string;
   price: number;        // total price in rupiah
-  dpAmount: number;     // dp paid so far
+  dpAmount: number;     // dp paid so far (independent of session status)
   date: string;         // "2026-07-10" ISO format for filtering
   dateDisplay: string;  // "10 Juli 2026"
   time: string;
@@ -25,6 +25,10 @@ export interface Order {
 }
 
 // ─── Seed Data ────────────────────────────────────────────────────────────────
+// NOTE: statusPesanan (sesi) and statusPembayaran (payment) are INDEPENDENT.
+// A session can be "Selesai" (done) while payment is still "DP Dibayar" (partial) —
+// this is a valid real-world case where the photographer has finished the shoot
+// but hasn't received full payment yet.
 
 const initialOrders: Order[] = [
   {
@@ -83,6 +87,7 @@ const initialOrders: Order[] = [
     package: "Pre-Wedding Basic",
     price: 1500000,
     dpAmount: 750000,
+    // Sesi sudah selesai, tapi klien belum melunasi — ini valid & independen
     date: "2026-07-15",
     dateDisplay: "15 Juli 2026",
     time: "09:00 - 13:00 WIB",
@@ -126,10 +131,14 @@ export function FotograferProvider({ children }: { children: ReactNode }) {
     setOrders((prev) =>
       prev.map((o) => {
         if (o.id !== id) return o;
-        // Auto update payment status when order is completed
+        // Only auto-advance payment when accepting (not on complete),
+        // keeping the two statuses clearly independent.
         let statusPembayaran = o.statusPembayaran;
-        if (status === "Selesai") statusPembayaran = "Lunas";
-        if (status === "Diterima" && statusPembayaran === "Menunggu Pembayaran") statusPembayaran = "DP Dibayar";
+        if (status === "Diterima" && statusPembayaran === "Menunggu Pembayaran") {
+          statusPembayaran = "DP Dibayar";
+        }
+        // NOTE: marking "Selesai" does NOT auto-set Lunas —
+        // payment must be confirmed separately in List Transaksi.
         return { ...o, statusPesanan: status, statusPembayaran };
       })
     );

@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Bell, Search, BarChart3, TrendingUp, Users, Calendar, ChevronDown, Package, Printer, Star, Receipt, ArrowRight } from "lucide-react";
+import { Bell, Search, BarChart3, TrendingUp, Users, Calendar, ChevronDown, Package, Printer, Star, Receipt, ArrowRight, AlertCircle, Clock3, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useFotografer, formatRupiah, Order } from "@/context/FotograferContext";
+
+// ─── Badge config (mirrors List Transaksi) ──────────────────────────────────
+import type { StatusPembayaran } from "@/context/FotograferContext";
+
+const PAY_BADGE: Record<StatusPembayaran, { bg: string; Icon: any }> = {
+  "Menunggu Pembayaran": { bg: "bg-red-100 text-red-800 ring-1 ring-red-300",           Icon: AlertCircle },
+  "DP Dibayar":          { bg: "bg-blue-100 text-blue-800 ring-1 ring-blue-300",         Icon: Clock3 },
+  "Lunas":               { bg: "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300", Icon: CheckCircle2 },
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -476,29 +485,80 @@ export default function LaporanPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[500px]">
+            <table className="w-full text-left border-collapse min-w-[720px]">
               <thead>
-                <tr className="bg-surface-2 border-b border-border text-sm text-text-muted">
+                <tr className="bg-surface-2 border-b border-border text-xs text-text-muted">
                   <th className="p-4 font-bold uppercase tracking-wider">Invoice</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Klien</th>
-                  <th className="p-4 font-bold uppercase tracking-wider">Paket</th>
-                  <th className="p-4 font-bold uppercase tracking-wider">Nominal</th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Total Tagihan</th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Pembayaran</th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Tanggal</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Status Bayar</th>
                 </tr>
               </thead>
               <tbody>
-                {previewOrders.slice(0, 5).length > 0 ? previewOrders.slice(0, 5).map((o) => (
-                  <tr key={o.id} className="border-b border-border last:border-0 hover:bg-surface-1 transition-colors">
-                    <td className="p-4 font-semibold">{o.invoiceId}</td>
-                    <td className="p-4">{o.client}</td>
-                    <td className="p-4">{o.package}</td>
-                    <td className="p-4 font-bold">{formatRupiah(o.price)}</td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${payBadge(o.statusPembayaran)}`}>{o.statusPembayaran}</span>
+                {previewOrders.slice(0, 5).length > 0 ? previewOrders.slice(0, 5).map((o) => {
+                  const badge = PAY_BADGE[o.statusPembayaran];
+                  const sisa  = o.price - o.dpAmount;
+                  return (
+                    <tr key={o.id} className="border-b border-border last:border-0 hover:bg-surface-1 transition-colors">
+                      {/* Invoice + ref */}
+                      <td className="p-4">
+                        <div className="font-semibold text-sm">{o.invoiceId}</div>
+                        <div className="text-xs text-text-muted mt-0.5">Ref: {o.id}</div>
+                      </td>
+
+                      {/* Klien */}
+                      <td className="p-4 text-sm">{o.client}</td>
+
+                      {/* Total Tagihan */}
+                      <td className="p-4 font-bold text-sm">{formatRupiah(o.price)}</td>
+
+                      {/* Pembayaran — two-line like transaksi page */}
+                      <td className="p-4">
+                        {o.statusPembayaran === "Menunggu Pembayaran" ? (
+                          <span className="text-sm text-text-muted">Belum ada pembayaran</span>
+                        ) : o.statusPembayaran === "DP Dibayar" ? (
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-sm font-bold text-blue-700">{formatRupiah(o.dpAmount)}</span>
+                              <span className="text-xs text-text-muted font-medium">dibayar</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                              <span className="text-xs text-amber-700 font-semibold">Sisa {formatRupiah(sisa)}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-sm font-bold text-emerald-700">{formatRupiah(o.dpAmount)}</span>
+                            <span className="text-xs text-emerald-600 font-medium">Lunas ✓</span>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Tanggal */}
+                      <td className="p-4 text-sm">{o.dateDisplay}</td>
+
+                      {/* Status badge with icon */}
+                      <td className="p-4">
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${badge.bg}`}>
+                          <badge.Icon className="w-3 h-3" /> {o.statusPembayaran}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                }) : (
+                  <tr>
+                    <td colSpan={6} className="p-10 text-center">
+                      <div className="flex flex-col items-center gap-3 text-text-muted">
+                        <div className="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center">
+                          <Receipt className="w-6 h-6 opacity-40" />
+                        </div>
+                        <p className="font-semibold">Tidak ada transaksi di periode ini.</p>
+                      </div>
                     </td>
                   </tr>
-                )) : (
-                  <tr><td colSpan={5} className="p-8 text-center text-text-muted">Tidak ada transaksi di periode ini.</td></tr>
                 )}
               </tbody>
             </table>
