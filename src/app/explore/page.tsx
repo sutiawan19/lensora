@@ -38,6 +38,7 @@ const MOCK_PHOTOGRAPHERS = [
 export default function ExplorePhotographers() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -45,11 +46,58 @@ export default function ExplorePhotographers() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [phIdx, setPhIdx] = useState(0);
 
+  // Additional filter states
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [sortBy, setSortBy] = useState("Rekomendasi");
+
   // Vendor state
   const [savedVendors, setSavedVendors] = useState<number[]>([]);
   const [hoveredPreviewId, setHoveredPreviewId] = useState<number | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter and Sort Photographers
+  const filteredPhotographers = MOCK_PHOTOGRAPHERS.filter(photographer => {
+    // 1. Search Query (filters by name)
+    const matchesSearch = !searchQuery.trim() || photographer.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
+    
+    // 2. Category Filter
+    const matchesCategory = !activeCategory || photographer.tags.includes(activeCategory);
+    
+    // 3. Style Tag Filter
+    const matchesTag = !activeTag || photographer.tags.includes(activeTag);
+    
+    // 4. Location Filter
+    const matchesLocation = !selectedLocation || photographer.location.toLowerCase().includes(selectedLocation.toLowerCase());
+    
+    // 5. Price Min/Max Filters
+    const priceNum = parseInt(photographer.price.replace(/[^0-9]/g, "")) || 0;
+    const matchesMinPrice = !minPrice || priceNum >= parseInt(minPrice);
+    const matchesMaxPrice = !maxPrice || priceNum <= parseInt(maxPrice);
+    
+    // 6. Availability Filter
+    const matchesAvailability = !onlyAvailable || photographer.available;
+
+    return matchesSearch && matchesCategory && matchesTag && matchesLocation && matchesMinPrice && matchesMaxPrice && matchesAvailability;
+  }).sort((a, b) => {
+    if (sortBy === "Rating Tertinggi") {
+      return b.rating - a.rating;
+    }
+    if (sortBy === "Harga Terendah") {
+      const priceA = parseInt(a.price.replace(/[^0-9]/g, "")) || 0;
+      const priceB = parseInt(b.price.replace(/[^0-9]/g, "")) || 0;
+      return priceA - priceB;
+    }
+    if (sortBy === "Harga Tertinggi") {
+      const priceA = parseInt(a.price.replace(/[^0-9]/g, "")) || 0;
+      const priceB = parseInt(b.price.replace(/[^0-9]/g, "")) || 0;
+      return priceB - priceA;
+    }
+    return 0; // "Rekomendasi" (maintain original mock array order)
+  });
 
   const handleDateClick = () => {
     if (dateInputRef.current && 'showPicker' in HTMLInputElement.prototype) {
@@ -93,14 +141,22 @@ export default function ExplorePhotographers() {
         <label className="text-sm font-black text-[#0F172A] mb-4 block">Kategori</label>
         <div className="flex flex-col gap-3">
           {CATEGORIES.map(cat => {
-            const isSelected = activeTag === cat;
+            const isSelected = activeCategory === cat;
             return (
-              <label key={cat} className="flex items-center gap-3 cursor-pointer group">
-                <div className="relative flex items-center justify-center w-5 h-5 rounded border border-slate-300 group-hover:border-[#2563EB] transition-colors bg-white">
-                  <Check className="w-3 h-3 text-white opacity-0 group-hover:opacity-20 transition-opacity" />
+              <div 
+                key={cat} 
+                className="flex items-center gap-3 cursor-pointer group"
+                onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
+              >
+                <div className={`relative flex items-center justify-center w-5 h-5 rounded border transition-colors ${
+                  isSelected 
+                    ? "border-[#2563EB] bg-[#2563EB]" 
+                    : "border-slate-300 bg-white group-hover:border-[#2563EB]"
+                }`}>
+                  <Check className={`w-3 h-3 text-white transition-opacity ${isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-20"}`} />
                 </div>
-                <span className="text-sm text-slate-600 group-hover:text-[#0F172A] transition-colors">{cat}</span>
-              </label>
+                <span className={`text-sm transition-colors ${isSelected ? "text-[#0F172A] font-bold" : "text-slate-600 group-hover:text-[#0F172A]"}`}>{cat}</span>
+              </div>
             );
           })}
         </div>
@@ -132,12 +188,24 @@ export default function ExplorePhotographers() {
         <div className="flex items-center gap-2">
           <div className="relative w-full">
              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">Rp</span>
-             <input type="text" placeholder="Min" className="w-full pl-8 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 transition-all text-[#0F172A]" />
+             <input 
+               type="text" 
+               placeholder="Min" 
+               value={minPrice}
+               onChange={(e) => setMinPrice(e.target.value.replace(/[^0-9]/g, ""))}
+               className="w-full pl-8 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 transition-all text-[#0F172A]" 
+             />
           </div>
           <span className="text-slate-400">-</span>
           <div className="relative w-full">
              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">Rp</span>
-             <input type="text" placeholder="Max" className="w-full pl-8 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 transition-all text-[#0F172A]" />
+             <input 
+               type="text" 
+               placeholder="Max" 
+               value={maxPrice}
+               onChange={(e) => setMaxPrice(e.target.value.replace(/[^0-9]/g, ""))}
+               className="w-full pl-8 pr-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 transition-all text-[#0F172A]" 
+             />
           </div>
         </div>
       </div>
@@ -146,7 +214,11 @@ export default function ExplorePhotographers() {
       <div className="border-b border-slate-100 pb-6">
         <label className="text-sm font-black text-[#0F172A] mb-4 block">Lokasi</label>
         <div className="relative">
-          <select className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 appearance-none text-[#0F172A] cursor-pointer transition-all">
+          <select 
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            className="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-blue-500/20 appearance-none text-[#0F172A] cursor-pointer transition-all"
+          >
             <option value="">Semua Kota</option>
             {LOCATIONS.map(loc => <option key={loc} value={loc}>{loc}</option>)}
           </select>
@@ -156,12 +228,19 @@ export default function ExplorePhotographers() {
 
       {/* Availability */}
       <div>
-        <label className="flex items-center gap-3 cursor-pointer group p-4 bg-slate-50 hover:bg-blue-50/50 rounded-2xl border border-slate-200 hover:border-blue-200 transition-all">
-          <div className="relative flex items-center justify-center w-5 h-5 rounded border border-slate-300 group-hover:border-[#2563EB] transition-colors bg-white">
-             <Check className="w-3 h-3 text-white opacity-0 group-hover:opacity-20 transition-opacity" />
+        <div 
+          onClick={() => setOnlyAvailable(!onlyAvailable)}
+          className="flex items-center gap-3 cursor-pointer group p-4 bg-slate-50 hover:bg-blue-50/50 rounded-2xl border border-slate-200 hover:border-blue-200 transition-all"
+        >
+          <div className={`relative flex items-center justify-center w-5 h-5 rounded border transition-colors ${
+            onlyAvailable 
+              ? "border-[#2563EB] bg-[#2563EB]" 
+              : "border-slate-300 bg-white group-hover:border-[#2563EB]"
+          }`}>
+             <Check className={`w-3 h-3 text-white transition-opacity ${onlyAvailable ? "opacity-100" : "opacity-0 group-hover:opacity-20"}`} />
           </div>
           <span className="text-sm font-bold text-[#0F172A]">Tersedia Minggu Ini</span>
-        </label>
+        </div>
       </div>
     </div>
   );
@@ -286,7 +365,23 @@ export default function ExplorePhotographers() {
           <div className="sticky top-36 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
                 <h2 className="font-extrabold flex items-center gap-2 text-[#0F172A]"><SlidersHorizontal className="w-4 h-4"/> Filter</h2>
-                <button className="text-xs font-bold text-slate-400 hover:text-[#2563EB] transition-colors">Reset</button>
+                <button 
+                  onClick={() => {
+                    setActiveTag(null);
+                    setActiveCategory(null);
+                    setSearchQuery("");
+                    setSelectedDate("");
+                    setUploadedImage(null);
+                    setSelectedLocation("");
+                    setMinPrice("");
+                    setMaxPrice("");
+                    setOnlyAvailable(false);
+                    setSortBy("Rekomendasi");
+                  }}
+                  className="text-xs font-bold text-slate-400 hover:text-[#2563EB] transition-colors"
+                >
+                  Reset
+                </button>
              </div>
              <FilterContent />
           </div>
@@ -295,20 +390,24 @@ export default function ExplorePhotographers() {
         {/* Photographers Grid */}
         <div className="flex-1">
           <div className="flex items-center justify-between mb-6">
-             <p className="text-sm font-bold text-text-muted">Menampilkan <span className="text-foreground">245</span> fotografer</p>
+             <p className="text-sm font-bold text-text-muted">Menampilkan <span className="text-foreground">{filteredPhotographers.length}</span> fotografer</p>
              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-text-muted hidden sm:block">Urutkan:</span>
-                <select className="bg-white border border-border rounded-lg px-3 py-1.5 text-sm font-bold outline-none cursor-pointer">
-                   <option>Rekomendasi</option>
-                   <option>Rating Tertinggi</option>
-                   <option>Harga Terendah</option>
-                   <option>Harga Tertinggi</option>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-white border border-border rounded-lg px-3 py-1.5 text-sm font-bold outline-none cursor-pointer"
+                >
+                   <option value="Rekomendasi">Rekomendasi</option>
+                   <option value="Rating Tertinggi">Rating Tertinggi</option>
+                   <option value="Harga Terendah">Harga Terendah</option>
+                   <option value="Harga Tertinggi">Harga Tertinggi</option>
                 </select>
              </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-             {MOCK_PHOTOGRAPHERS.map((photographer, idx) => {
+             {filteredPhotographers.map((photographer, idx) => {
                 const isSaved = savedVendors.includes(photographer.id);
                 const isPreviewHovered = hoveredPreviewId === photographer.id;
 
@@ -495,7 +594,24 @@ export default function ExplorePhotographers() {
                    <FilterContent />
                 </div>
                 <div className="p-4 border-t border-border shrink-0 flex gap-3 bg-white">
-                   <button className="flex-1 py-3.5 bg-surface-2 text-foreground font-bold rounded-xl" onClick={() => setIsMobileFilterOpen(false)}>Reset</button>
+                   <button 
+                     className="flex-1 py-3.5 bg-surface-2 text-foreground font-bold rounded-xl" 
+                     onClick={() => {
+                       setActiveTag(null);
+                       setActiveCategory(null);
+                       setSearchQuery("");
+                       setSelectedDate("");
+                       setUploadedImage(null);
+                       setSelectedLocation("");
+                       setMinPrice("");
+                       setMaxPrice("");
+                       setOnlyAvailable(false);
+                       setSortBy("Rekomendasi");
+                       setIsMobileFilterOpen(false);
+                     }}
+                   >
+                     Reset
+                   </button>
                    <button className="flex-[2] py-3.5 bg-primary text-white font-bold rounded-xl shadow-sm" onClick={() => setIsMobileFilterOpen(false)}>Terapkan Filter</button>
                 </div>
              </motion.div>

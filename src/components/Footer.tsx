@@ -56,9 +56,7 @@ export default function FooterV3() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium uppercase tracking-widest text-white/30 relative z-10 mb-8 border-t border-white/10 pt-8">
         <p>© {new Date().getFullYear()} Lensora. All rights reserved.</p>
         <div className="flex gap-6">
-          <Link href="#" className="hover:text-white transition-colors">Instagram</Link>
-          <Link href="#" className="hover:text-white transition-colors">Twitter</Link>
-          <Link href="#" className="hover:text-white transition-colors">LinkedIn</Link>
+          <Link href="https://www.instagram.com/lensora.co?igsh=MWQ5MW94a2R5Z213eA==" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</Link>
         </div>
       </div>
 

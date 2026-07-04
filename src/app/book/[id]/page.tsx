@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   CheckCircle2, Clock, MapPin, Camera, Calendar as CalendarIcon, 
-  ChevronRight, UploadCloud, FileText, CreditCard, Wallet, Smartphone, ChevronLeft
+  ChevronRight, UploadCloud, FileText, CreditCard, Wallet, Smartphone, ChevronLeft, X
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -35,7 +35,11 @@ const CALENDAR_DAYS = Array.from({ length: 14 }, (_, i) => {
   };
 });
 
-const TIMESLOTS = ["09:00", "11:00", "14:00", "16:00"];
+const SHIFTS = [
+  { id: "shift_pagi", label: "Shift Pagi", time: "09.00 - 13.00" },
+  { id: "shift_siang", label: "Shift Siang", time: "13.00 - 17.00" },
+  { id: "shift_malam", label: "Shift Malam", time: "17.00 - 21.00" }
+];
 
 export default function BookingFlow() {
   const params = useParams();
@@ -50,6 +54,81 @@ export default function BookingFlow() {
   const [locationStr, setLocationStr] = useState("");
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+
+  const selectedShift = SHIFTS.find(s => s.id === selectedTime);
+
+  // Image Upload State
+  const [uploadedImages, setUploadedImages] = useState<{ id: string; url: string; file: File }[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const processFiles = (files: FileList) => {
+    setValidationError(null);
+    const newImages: { id: string; url: string; file: File }[] = [];
+
+    // Check if total files exceed 5
+    if (uploadedImages.length + files.length > 5) {
+      setValidationError("Maksimal 5 gambar yang diperbolehkan.");
+      return;
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith("image/")) {
+        setValidationError("Hanya file gambar yang diperbolehkan.");
+        return;
+      }
+      newImages.push({
+        id: Math.random().toString(36).substring(2, 9),
+        url: URL.createObjectURL(file),
+        file
+      });
+    }
+
+    setUploadedImages(prev => [...prev, ...newImages]);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    if (e.target.files && e.target.files[0]) {
+      processFiles(e.target.files);
+    }
+  };
+
+  const removeImage = (idToRemove: string) => {
+    setUploadedImages(prev => {
+      const toRemove = prev.find(img => img.id === idToRemove);
+      if (toRemove) {
+        URL.revokeObjectURL(toRemove.url);
+      }
+      return prev.filter(img => img.id !== idToRemove);
+    });
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   // Constants
   const DP_PERCENTAGE = 0.3; // 30%
@@ -147,17 +226,18 @@ export default function BookingFlow() {
       <AnimatePresence>
         {selectedDate && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-            <h3 className="font-bold text-foreground mb-4">Pilih Waktu ({selectedPackage?.duration})</h3>
-            <div className="grid grid-cols-2 gap-3 mb-8">
-              {TIMESLOTS.map(time => (
+            <h3 className="font-bold text-foreground mb-4">Pilih Shift ({selectedPackage?.duration})</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+              {SHIFTS.map(shift => (
                 <button
-                  key={time}
-                  onClick={() => setSelectedTime(time)}
-                  className={`py-3 rounded-xl border-2 font-bold transition-all ${
-                    selectedTime === time ? "bg-primary text-white border-primary" : "bg-white border-border text-text-muted hover:border-primary/50"
+                  key={shift.id}
+                  onClick={() => setSelectedTime(shift.id)}
+                  className={`py-4 rounded-xl border-2 font-bold transition-all flex flex-col items-center justify-center gap-1 ${
+                    selectedTime === shift.id ? "bg-primary text-white border-primary" : "bg-white border-border text-text-muted hover:border-primary/50"
                   }`}
                 >
-                  {time}
+                  <span className="text-sm font-extrabold">{shift.label}</span>
+                  <span className={`text-xs font-medium ${selectedTime === shift.id ? "text-white/80" : "text-text-muted"}`}>{shift.time}</span>
                 </button>
               ))}
             </div>
@@ -248,13 +328,58 @@ export default function BookingFlow() {
 
         <div>
            <label className="block text-sm font-bold text-foreground mb-2">Unggah Referensi (Opsional)</label>
-           <div className="w-full border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-surface-2 hover:bg-surface transition-colors cursor-pointer group">
+           
+           <input 
+             ref={fileInputRef}
+             type="file"
+             accept="image/*"
+             multiple
+             onChange={handleChange}
+             className="hidden"
+           />
+
+           <div 
+             onClick={triggerFileInput}
+             onDragEnter={handleDrag}
+             onDragOver={handleDrag}
+             onDragLeave={handleDrag}
+             onDrop={handleDrop}
+             className={`w-full border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center transition-colors cursor-pointer group ${
+               dragActive 
+                 ? "border-primary bg-primary-light/10" 
+                 : "border-border bg-surface-2 hover:bg-surface"
+             }`}
+           >
               <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                  <UploadCloud className="w-6 h-6 text-primary" />
               </div>
               <p className="text-sm font-bold text-foreground mb-1">Klik atau Drop gambar di sini</p>
-              <p className="text-xs text-text-muted">Maksimal 3 foto (JPG/PNG, max 5MB)</p>
+              <p className="text-xs text-text-muted">Maksimal 5 foto (JPG/PNG, max 5MB)</p>
            </div>
+
+           {validationError && (
+             <p className="text-xs text-red-500 font-bold mt-2">{validationError}</p>
+           )}
+
+           {uploadedImages.length > 0 && (
+             <div className="grid grid-cols-5 gap-3 mt-4">
+               {uploadedImages.map(img => (
+                 <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-border bg-surface shadow-sm group/thumb">
+                   <img src={img.url} alt="Reference Preview" className="w-full h-full object-cover" />
+                   <button 
+                     type="button"
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       removeImage(img.id);
+                     }}
+                     className="absolute top-1.5 right-1.5 p-1 bg-white hover:bg-red-500 hover:text-white rounded-full text-slate-400 border border-slate-200 transition-colors shadow-md md:opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center"
+                   >
+                     <X className="w-3 h-3" />
+                   </button>
+                 </div>
+               ))}
+             </div>
+           )}
         </div>
       </div>
 
@@ -296,7 +421,7 @@ export default function BookingFlow() {
             <div>
                <p className="text-xs text-text-muted font-bold uppercase tracking-wider mb-0.5">Jadwal</p>
                <p className="font-bold text-foreground text-sm">
-                  {selectedDate ? new Date(selectedDate).toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ""} • {selectedTime}
+                  {selectedDate ? new Date(selectedDate).toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ""} • {selectedShift ? `${selectedShift.label} (${selectedShift.time})` : ""}
                </p>
             </div>
          </div>
@@ -496,7 +621,7 @@ export default function BookingFlow() {
                         <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Jadwal</p>
                         {selectedDate && selectedTime ? (
                            <p className="font-bold text-foreground text-sm">
-                              {new Date(selectedDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'short' })} • {selectedTime}
+                              {new Date(selectedDate).toLocaleDateString("id-ID", { day: 'numeric', month: 'short' })} • {selectedShift ? `${selectedShift.label} (${selectedShift.time})` : ""}
                            </p>
                         ) : (
                            <p className="text-sm font-semibold text-text-muted/50">Belum diatur.</p>
