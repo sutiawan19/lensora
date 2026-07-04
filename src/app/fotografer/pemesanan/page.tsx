@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import {
   Bell, Search, Filter, X, Calendar as CalendarIcon, MapPin, Package,
   User, Clock, FileText, Download, ChevronUp, ChevronDown as ChevronDownIcon,
@@ -21,7 +21,7 @@ const PESANAN_BADGE: Record<StatusPesanan, { bg: string; text: string; Icon: any
 const PAGE_SIZE = 5;
 
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function PemesananPage() {
+function PemesananContent() {
   const { orders, updateStatusPesanan } = useFotografer();
 
   const [searchQuery, setSearchQuery]   = useState("");
@@ -361,5 +361,13 @@ export default function PemesananPage() {
         );
       })()}
     </>
+  );
+}
+
+export default function PemesananPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-text-muted">Loading pemesanan...</div>}>
+      <PemesananContent />
+    </Suspense>
   );
 }
