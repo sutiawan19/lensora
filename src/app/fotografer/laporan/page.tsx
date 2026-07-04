@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Bell, Search, BarChart3, TrendingUp, Users, Calendar, ChevronDown, Package, Printer, Star, Receipt, ArrowRight, AlertCircle, Clock3, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useFotografer, formatRupiah, Order } from "@/context/FotograferContext";
+import FotograferTopbar from "../FotograferTopbar";
 
 // ─── Badge config (mirrors List Transaksi) ──────────────────────────────────
 import type { StatusPembayaran } from "@/context/FotograferContext";
@@ -31,6 +32,7 @@ function displayRange(from: Date, to: Date): string {
 
 // Map month display name → ISO date range
 const MONTH_RANGES: Record<string, { from: string; to: string }> = {
+  "Semua Waktu": { from: "2025-01-01", to: "2027-12-31" },
   "Mei 2026":    { from: "2026-05-01", to: "2026-05-31" },
   "Juni 2026":   { from: "2026-06-01", to: "2026-06-30" },
   "Juli 2026":   { from: "2026-07-01", to: "2026-07-31" },
@@ -46,7 +48,7 @@ export default function LaporanPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState("Juli 2026");
+  const [selectedPeriod, setSelectedPeriod] = useState("Semua Waktu");
   const [isPeriodSelectOpen, setIsPeriodSelectOpen] = useState(false);
   const [customFrom, setCustomFrom] = useState("2026-07-01");
   const [customTo, setCustomTo] = useState("2026-07-31");
@@ -67,7 +69,7 @@ export default function LaporanPage() {
     if (selectedPeriod === "Custom Range") {
       return { activeFrom: parseDate(customFrom), activeTo: parseDate(customTo) };
     }
-    const range = MONTH_RANGES[selectedPeriod] ?? MONTH_RANGES["Juli 2026"];
+    const range = MONTH_RANGES[selectedPeriod] ?? MONTH_RANGES["Semua Waktu"];
     return { activeFrom: parseDate(range.from), activeTo: parseDate(range.to) };
   }, [selectedPeriod, customFrom, customTo]);
 
@@ -76,27 +78,33 @@ export default function LaporanPage() {
   // ─── Filtered Orders in period ────────────────────────────────────────────
   const periodOrders = useMemo(
     () => orders.filter((o) => {
-      const d = parseDate(o.date);
+      const d = parseDate(o.bookingDate);
       return d >= activeFrom && d <= activeTo;
     }),
     [orders, activeFrom, activeTo]
   );
 
   // ─── Computed Metrics ─────────────────────────────────────────────────────
+  const getRevenue = (o: any) => {
+    if (o.statusPembayaran === "Menunggu Pembayaran") return 0;
+    if (o.statusPembayaran === "Lunas") return o.price;
+    return Math.min(o.dpAmount, o.price); // DP Dibayar
+  };
+
   const grossRevenue = useMemo(
-    () => periodOrders.filter(o => o.statusPesanan === "Selesai").reduce((s, o) => s + o.price, 0),
+    () => periodOrders.reduce((s, o) => s + getRevenue(o), 0),
     [periodOrders]
   );
   const netRevenue = Math.round(grossRevenue * (1 - PLATFORM_FEE));
   const totalOrders = periodOrders.length;
   const uniqueClients = useMemo(() => new Set(periodOrders.map(o => o.client)).size, [periodOrders]);
 
-  // Revenue per package (only Selesai orders count as income)
+  // Revenue per package
   const packageStats = useMemo(() => {
     const map: Record<string, { revenue: number; bookings: number }> = {};
-    periodOrders.filter(o => o.statusPesanan === "Selesai").forEach(o => {
+    periodOrders.forEach(o => {
       if (!map[o.package]) map[o.package] = { revenue: 0, bookings: 0 };
-      map[o.package].revenue += o.price;
+      map[o.package].revenue += getRevenue(o);
       map[o.package].bookings += 1;
     });
     return Object.entries(map)
@@ -109,7 +117,7 @@ export default function LaporanPage() {
     const map: Record<string, { spent: number; orders: number }> = {};
     periodOrders.forEach(o => {
       if (!map[o.client]) map[o.client] = { spent: 0, orders: 0 };
-      map[o.client].spent += o.dpAmount;
+      map[o.client].spent += getRevenue(o);
       map[o.client].orders += 1;
     });
     return Object.entries(map)
@@ -130,10 +138,10 @@ export default function LaporanPage() {
     const totalMs = activeTo.getTime() - activeFrom.getTime();
     const bandMs = totalMs / 4;
     const bands = [0, 0, 0, 0];
-    periodOrders.filter(o => o.statusPesanan === "Selesai").forEach(o => {
-      const d = parseDate(o.date);
+    periodOrders.forEach(o => {
+      const d = parseDate(o.bookingDate);
       const idx = Math.min(3, Math.floor((d.getTime() - activeFrom.getTime()) / bandMs));
-      bands[idx] += o.price;
+      bands[idx] += getRevenue(o);
     });
     const max = Math.max(...bands, 1);
     return bands.map(v => ({ value: v, pct: Math.round((v / max) * 100) }));
@@ -178,8 +186,7 @@ export default function LaporanPage() {
       o.package.toLowerCase().includes(q)
     );
   }, [searchQuery, periodOrders]);
-
-  const periodOptions = ["Mei 2026", "Juni 2026", "Juli 2026", "Agustus 2026", "Custom Range"];
+  const periodOptions = ["Semua Waktu", "Mei 2026", "Juni 2026", "Juli 2026", "Agustus 2026", "Custom Range"];
 
   const payBadge = (s: string) =>
     s === "Lunas" ? "bg-green-100 text-green-700" : s === "DP Dibayar" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700";
@@ -193,15 +200,13 @@ export default function LaporanPage() {
           #printable-report, #printable-report * { visibility: visible; }
           #printable-report { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
           .no-print { display: none !important; }
-          .print-header { display: block !important; margin-bottom: 24px; border-bottom: 2px solid #eaeaea; padding-bottom: 16px; }
-          .print-break { page-break-before: always; }
-          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          .print-header { display: block !important; margin-bottom: 30px; }
+          .chart-container { page-break-inside: avoid; }
         }
         .print-header { display: none; }
       `}} />
 
-      {/* Topbar */}
-      <header className="h-16 bg-white border-b border-border hidden md:flex items-center justify-between px-8 sticky top-0 z-40 no-print">
+      <FotograferTopbar>
         <div className="relative w-96" ref={searchRef}>
           <div className="flex items-center gap-3 bg-surface-2 rounded-xl px-4 py-2 border border-border focus-within:border-primary transition-colors">
             <Search className="w-4 h-4 text-text-muted" />
@@ -227,21 +232,7 @@ export default function LaporanPage() {
             </div>
           )}
         </div>
-
-        <div className="flex items-center gap-4">
-          <button className="relative p-2 text-text-muted hover:bg-surface-2 rounded-full transition-colors">
-            <Bell className="w-5 h-5" />
-          </button>
-          <div className="w-px h-6 bg-border"></div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-foreground">Fotografer Pro</p>
-              <p className="text-xs text-text-muted">Vendor</p>
-            </div>
-            <img src="https://i.pravatar.cc/100?img=33" alt="Profile" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
-          </div>
-        </div>
-      </header>
+      </FotograferTopbar>
 
       <main className="p-4 md:p-8" id="printable-report">
         {/* PDF Header (hidden on screen) */}
@@ -492,14 +483,16 @@ export default function LaporanPage() {
                   <th className="p-4 font-bold uppercase tracking-wider">Klien</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Total Tagihan</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Pembayaran</th>
-                  <th className="p-4 font-bold uppercase tracking-wider">Tanggal</th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Tgl Booking</th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Tgl Sesi</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Status Bayar</th>
                 </tr>
               </thead>
               <tbody>
                 {previewOrders.slice(0, 5).length > 0 ? previewOrders.slice(0, 5).map((o) => {
                   const badge = PAY_BADGE[o.statusPembayaran];
-                  const sisa  = o.price - o.dpAmount;
+                  const validDp = Math.min(o.dpAmount, o.price);
+                  const sisa  = Math.max(0, o.price - validDp);
                   return (
                     <tr key={o.id} className="border-b border-border last:border-0 hover:bg-surface-1 transition-colors">
                       {/* Invoice + ref */}
@@ -521,7 +514,7 @@ export default function LaporanPage() {
                         ) : o.statusPembayaran === "DP Dibayar" ? (
                           <div className="flex flex-col gap-1">
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-sm font-bold text-blue-700">{formatRupiah(o.dpAmount)}</span>
+                              <span className="text-sm font-bold text-blue-700">{formatRupiah(validDp)}</span>
                               <span className="text-xs text-text-muted font-medium">dibayar</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -531,14 +524,15 @@ export default function LaporanPage() {
                           </div>
                         ) : (
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-bold text-emerald-700">{formatRupiah(o.dpAmount)}</span>
+                            <span className="text-sm font-bold text-emerald-700">{formatRupiah(validDp)}</span>
                             <span className="text-xs text-emerald-600 font-medium">Lunas ✓</span>
                           </div>
                         )}
                       </td>
 
                       {/* Tanggal */}
-                      <td className="p-4 text-sm">{o.dateDisplay}</td>
+                      <td className="p-4 text-sm font-semibold text-text-muted">{o.bookingDateDisplay}</td>
+                      <td className="p-4 text-sm font-semibold text-text-muted">{o.sessionDateDisplay}</td>
 
                       {/* Status badge with icon */}
                       <td className="p-4">
@@ -550,7 +544,7 @@ export default function LaporanPage() {
                   );
                 }) : (
                   <tr>
-                    <td colSpan={6} className="p-10 text-center">
+                    <td colSpan={7} className="p-10 text-center">
                       <div className="flex flex-col items-center gap-3 text-text-muted">
                         <div className="w-12 h-12 rounded-2xl bg-surface-2 flex items-center justify-center">
                           <Receipt className="w-6 h-6 opacity-40" />

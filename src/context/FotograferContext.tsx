@@ -15,8 +15,10 @@ export interface Order {
   package: string;
   price: number;        // total price in rupiah
   dpAmount: number;     // dp paid so far (independent of session status)
-  date: string;         // "2026-07-10" ISO format for filtering
-  dateDisplay: string;  // "10 Juli 2026"
+  bookingDate: string;  // "2026-07-01" ISO format
+  bookingDateDisplay: string; // "1 Juli 2026"
+  sessionDate: string;  // "2026-07-24" ISO format
+  sessionDateDisplay: string; // "24 Juli 2026"
   time: string;
   location: string;
   notes: string;
@@ -39,8 +41,10 @@ const initialOrders: Order[] = [
     package: "Pre-Wedding Basic",
     price: 1500000,
     dpAmount: 0,
-    date: "2026-07-24",
-    dateDisplay: "24 Juli 2026",
+    bookingDate: "2026-07-01",
+    bookingDateDisplay: "1 Juli 2026",
+    sessionDate: "2026-07-24",
+    sessionDateDisplay: "24 Juli 2026",
     time: "08:00 - 12:00 WIB",
     location: "Taman Hutan Raya, Bandung",
     notes: "Mohon siapkan konsep casual outdoor. Referensi foto sudah dikirim via WhatsApp.",
@@ -55,8 +59,10 @@ const initialOrders: Order[] = [
     package: "Graduation Premium",
     price: 2000000,
     dpAmount: 1000000,
-    date: "2026-07-26",
-    dateDisplay: "26 Juli 2026",
+    bookingDate: "2026-07-05",
+    bookingDateDisplay: "5 Juli 2026",
+    sessionDate: "2026-07-26",
+    sessionDateDisplay: "26 Juli 2026",
     time: "10:00 - 14:00 WIB",
     location: "Universitas Padjadjaran, Jatinangor",
     notes: "Foto bareng keluarga inti saja. Bawa lensa wide ya mas.",
@@ -71,8 +77,10 @@ const initialOrders: Order[] = [
     package: "Personal Portrait",
     price: 800000,
     dpAmount: 800000,
-    date: "2026-07-28",
-    dateDisplay: "28 Juli 2026",
+    bookingDate: "2026-07-20",
+    bookingDateDisplay: "20 Juli 2026",
+    sessionDate: "2026-07-28",
+    sessionDateDisplay: "28 Juli 2026",
     time: "15:00 - 17:00 WIB",
     location: "Studio Lensora, Jakarta",
     notes: "Untuk foto profile LinkedIn dan CV.",
@@ -88,8 +96,10 @@ const initialOrders: Order[] = [
     price: 1500000,
     dpAmount: 750000,
     // Sesi sudah selesai, tapi klien belum melunasi — ini valid & independen
-    date: "2026-07-15",
-    dateDisplay: "15 Juli 2026",
+    bookingDate: "2026-06-25",
+    bookingDateDisplay: "25 Juni 2026",
+    sessionDate: "2026-07-15",
+    sessionDateDisplay: "15 Juli 2026",
     time: "09:00 - 13:00 WIB",
     location: "Pantai Pandawa, Bali",
     notes: "Outdoor session, sore hari kalau bisa.",
@@ -104,8 +114,10 @@ const initialOrders: Order[] = [
     package: "Graduation Premium",
     price: 2000000,
     dpAmount: 2000000,
-    date: "2026-07-10",
-    dateDisplay: "10 Juli 2026",
+    bookingDate: "2026-08-01",
+    bookingDateDisplay: "1 Agustus 2026",
+    sessionDate: "2026-08-15",
+    sessionDateDisplay: "15 Agustus 2026",
     time: "07:00 - 11:00 WIB",
     location: "Universitas Indonesia, Depok",
     notes: "Wisuda pagi, mohon tepat waktu.",

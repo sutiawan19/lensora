@@ -7,6 +7,7 @@ import {
   ChevronUp, ChevronDown as ChevronDownIcon, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useFotografer, formatRupiah, StatusPembayaran, Order } from "@/context/FotograferContext";
+import FotograferTopbar from "../FotograferTopbar";
 
 // ─── Badge configs ────────────────────────────────────────────────────────────
 const PAY_BADGE: Record<StatusPembayaran, { bg: string; Icon: any }> = {
@@ -43,8 +44,8 @@ export default function TransaksiPage() {
       return matchQ && matchF;
     });
     return [...filtered].sort((a, b) => {
-      const aTime = new Date(a.date).getTime();
-      const bTime = new Date(b.date).getTime();
+      const aTime = new Date(a.bookingDate).getTime();
+      const bTime = new Date(b.bookingDate).getTime();
       return sortDir === "desc" ? bTime - aTime : aTime - bTime;
     });
   }, [orders, searchQuery, filterStatus, sortDir]);
@@ -59,10 +60,11 @@ export default function TransaksiPage() {
 
   // Export CSV
   const handleExportCSV = () => {
-    let csv = "Invoice,ID Pesanan,Klien,Paket,Total Tagihan,Dibayar,Sisa,Tanggal,Status Pembayaran\n";
+    let csv = "Invoice,ID Pesanan,Klien,Paket,Total Tagihan,Dibayar,Sisa,Tanggal Booking,Tanggal Sesi,Status Pembayaran\n";
     filteredData.forEach((o) => {
-      const sisa = o.price - o.dpAmount;
-      csv += `"${o.invoiceId}","${o.id}","${o.client}","${o.package}","${o.price}","${o.dpAmount}","${sisa}","${o.dateDisplay}","${o.statusPembayaran}"\n`;
+      const validDp = Math.min(o.dpAmount, o.price);
+      const sisa = Math.max(0, o.price - validDp);
+      csv += `"${o.invoiceId}","${o.id}","${o.client}","${o.package}","${o.price}","${validDp}","${sisa}","${o.bookingDateDisplay}","${o.sessionDateDisplay}","${o.statusPembayaran}"\n`;
     });
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url  = URL.createObjectURL(blob);
@@ -73,28 +75,13 @@ export default function TransaksiPage() {
 
   return (
     <>
-      {/* ── Topbar ── */}
-      <header className="h-16 bg-white border-b border-border hidden md:flex items-center justify-between px-8 sticky top-0 z-40">
+      <FotograferTopbar>
         <div className="flex items-center gap-3 bg-surface-2 rounded-xl px-4 py-2 border border-border w-96">
           <Search className="w-4 h-4 text-text-muted" />
-          <input type="text" placeholder="Cari invoice, ID pesanan, atau klien..." className="bg-transparent text-sm outline-none w-full"
+          <input type="text" placeholder="Cari invoice, ID, klien..." className="bg-transparent text-sm outline-none w-full"
             value={searchQuery} onChange={(e) => handleSearch(e.target.value)} />
         </div>
-        <div className="flex items-center gap-4">
-          <button className="relative p-2 text-text-muted hover:bg-surface-2 rounded-full transition-colors">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-          </button>
-          <div className="w-px h-6 bg-border"></div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-foreground">Fotografer Pro</p>
-              <p className="text-xs text-text-muted">Vendor</p>
-            </div>
-            <img src="https://i.pravatar.cc/100?img=33" alt="Profile" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
-          </div>
-        </div>
-      </header>
+      </FotograferTopbar>
 
       <main className="p-4 md:p-8">
         {/* ── Page header + actions ── */}
@@ -108,7 +95,7 @@ export default function TransaksiPage() {
             {/* Sort */}
             <button onClick={() => { setSortDir(d => d === "desc" ? "asc" : "desc"); setPage(1); }}
               className="flex items-center gap-2 bg-white border border-border px-3 py-2 rounded-xl font-semibold text-sm hover:bg-surface-2 transition-colors">
-              <SortIcon className="w-4 h-4" /> Tanggal
+              <SortIcon className="w-4 h-4" /> Tgl Booking
             </button>
 
             {/* Filter */}
@@ -158,8 +145,9 @@ export default function TransaksiPage() {
                   <th className="p-4 font-bold uppercase tracking-wider">Total Tagihan</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Pembayaran</th>
                   <th className="p-4 font-bold uppercase tracking-wider cursor-pointer select-none" onClick={() => { setSortDir(d => d === "desc" ? "asc" : "desc"); setPage(1); }}>
-                    <span className="flex items-center gap-1">Tanggal <SortIcon className="w-3.5 h-3.5" /></span>
+                    <span className="flex items-center gap-1">Tgl Booking <SortIcon className="w-3.5 h-3.5" /></span>
                   </th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Tgl Sesi</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Status Bayar</th>
                   <th className="p-4 font-bold uppercase tracking-wider text-right">Aksi</th>
                 </tr>
@@ -167,7 +155,8 @@ export default function TransaksiPage() {
               <tbody>
                 {paginated.length > 0 ? paginated.map((o) => {
                   const badge = PAY_BADGE[o.statusPembayaran];
-                  const sisa  = o.price - o.dpAmount;
+                  const validDp = Math.min(o.dpAmount, o.price);
+                  const sisa  = Math.max(0, o.price - validDp);
                   return (
                     <tr key={o.id} className="border-b border-border last:border-0 hover:bg-surface-1 transition-colors">
                       <td className="p-4">
@@ -184,7 +173,7 @@ export default function TransaksiPage() {
                         ) : o.statusPembayaran === "DP Dibayar" ? (
                           <div className="flex flex-col gap-1">
                             <div className="flex items-baseline gap-1.5">
-                              <span className="text-sm font-bold text-blue-700">{formatRupiah(o.dpAmount)}</span>
+                              <span className="text-sm font-bold text-blue-700">{formatRupiah(validDp)}</span>
                               <span className="text-xs text-text-muted font-medium">dibayar</span>
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -194,13 +183,14 @@ export default function TransaksiPage() {
                           </div>
                         ) : (
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-bold text-emerald-700">{formatRupiah(o.dpAmount)}</span>
+                            <span className="text-sm font-bold text-emerald-700">{formatRupiah(validDp)}</span>
                             <span className="text-xs text-emerald-600 font-medium">Lunas ✓</span>
                           </div>
                         )}
                       </td>
 
-                      <td className="p-4 text-sm">{o.dateDisplay}</td>
+                      <td className="p-4 text-sm font-semibold text-text-muted">{o.bookingDateDisplay}</td>
+                      <td className="p-4 text-sm font-semibold text-text-muted">{o.sessionDateDisplay}</td>
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${badge.bg}`}>
                           <badge.Icon className="w-3 h-3" /> {o.statusPembayaran}
@@ -216,7 +206,7 @@ export default function TransaksiPage() {
                 }) : (
                   /* ── Empty state ── */
                   <tr>
-                    <td colSpan={7} className="py-16 text-center">
+                    <td colSpan={8} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-3 text-text-muted">
                         <div className="w-16 h-16 rounded-2xl bg-surface-2 flex items-center justify-center">
                           <Search className="w-8 h-8 opacity-40" />
@@ -275,12 +265,12 @@ export default function TransaksiPage() {
               <div className="flex flex-col items-center text-center mb-6 pb-6 border-b border-border">
                 <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">Total Telah Dibayar</p>
                 <p className={`text-4xl font-extrabold ${selectedTrx.statusPembayaran === "Lunas" ? "text-emerald-600" : selectedTrx.statusPembayaran === "DP Dibayar" ? "text-blue-600" : "text-foreground"}`}>
-                  {formatRupiah(selectedTrx.dpAmount)}
+                  {formatRupiah(Math.min(selectedTrx.dpAmount, selectedTrx.price))}
                 </p>
                 {selectedTrx.statusPembayaran === "DP Dibayar" && (
                   <div className="mt-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl">
                     <p className="text-sm font-semibold text-amber-800">
-                      Sisa tagihan: <strong>{formatRupiah(selectedTrx.price - selectedTrx.dpAmount)}</strong>
+                      Sisa tagihan: <strong>{formatRupiah(Math.max(0, selectedTrx.price - Math.min(selectedTrx.dpAmount, selectedTrx.price)))}</strong>
                     </p>
                   </div>
                 )}
@@ -291,7 +281,8 @@ export default function TransaksiPage() {
                 {[
                   { Icon: User, label: "Klien", value: selectedTrx.client },
                   { Icon: Package, label: "Paket", value: selectedTrx.package },
-                  { Icon: CalendarIcon, label: "Tanggal Sesi", value: selectedTrx.dateDisplay },
+                  { Icon: CalendarIcon, label: "Tgl Booking", value: selectedTrx.bookingDateDisplay },
+                  { Icon: CalendarIcon, label: "Tgl Sesi", value: selectedTrx.sessionDateDisplay },
                   { Icon: CreditCard, label: "Total Tagihan", value: formatRupiah(selectedTrx.price) },
                 ].map(({ Icon, label, value }) => (
                   <div key={label} className="flex justify-between items-center py-2 border-b border-border last:border-0">
@@ -306,9 +297,9 @@ export default function TransaksiPage() {
                 <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-4">Riwayat Transaksi</h3>
                 <div className="space-y-3">
                   {[
-                    { show: true, color: "bg-primary", label: "Pesanan Dibuat", sub: selectedTrx.dateDisplay },
-                    { show: selectedTrx.statusPembayaran !== "Menunggu Pembayaran", color: "bg-blue-500", label: `Pembayaran DP — ${formatRupiah(selectedTrx.dpAmount)}`, sub: selectedTrx.dateDisplay },
-                    { show: selectedTrx.statusPembayaran === "Lunas", color: "bg-emerald-500", label: `Pelunasan — ${formatRupiah(selectedTrx.price)}`, sub: selectedTrx.dateDisplay },
+                    { show: true, color: "bg-primary", label: "Pesanan Dibuat", sub: selectedTrx.bookingDateDisplay },
+                    { show: selectedTrx.statusPembayaran !== "Menunggu Pembayaran", color: "bg-blue-500", label: `Pembayaran DP — ${formatRupiah(Math.min(selectedTrx.dpAmount, selectedTrx.price))}`, sub: selectedTrx.bookingDateDisplay },
+                    { show: selectedTrx.statusPembayaran === "Lunas", color: "bg-emerald-500", label: `Pelunasan — ${formatRupiah(selectedTrx.price)}`, sub: selectedTrx.sessionDateDisplay },
                   ].filter(t => t.show).map((t, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className={`w-4 h-4 rounded-full ${t.color} flex items-center justify-center shrink-0 mt-0.5`}>
