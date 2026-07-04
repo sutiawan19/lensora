@@ -3,8 +3,21 @@
 import { motion } from "framer-motion";
 import { Camera, ArrowRight, Mail, Lock, Globe } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email === "me.sutiawan@gmail.com") {
+      router.push("/dashboard/super-admin");
+    } else {
+      router.push("/dashboard");
+    }
+  };
   return (
     <main className="min-h-screen flex bg-surface-2">
       {/* Left Side - Visual/Branding */}
@@ -85,8 +98,11 @@ export default function Login() {
                 </div>
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-border rounded-xl bg-surface-2 focus:ring-primary focus:border-primary transition-colors outline-none text-foreground text-sm"
                   placeholder="nama@email.com"
+                  required
                 />
               </div>
             </div>
@@ -108,9 +124,9 @@ export default function Login() {
               </div>
             </div>
 
-            <Link href="/dashboard" className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 mt-6">
+            <button type="submit" onClick={handleLogin} className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-xl transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 mt-6">
               Masuk <ArrowRight className="w-4 h-4" />
-            </Link>
+            </button>
           </form>
 
           <div className="mt-8 relative">
