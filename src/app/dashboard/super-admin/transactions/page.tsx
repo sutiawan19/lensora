@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Search, Filter, MoreHorizontal, Eye, CheckCircle, XCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Filter, MoreHorizontal, Eye, CheckCircle, XCircle, X, Calendar, User, Camera, CreditCard } from "lucide-react";
 
 const initialTransactions = [
   { id: "TRX-001", user: "Andi Saputra", photographer: "Budi Photography", date: "2026-07-01", amount: "Rp 1.500.000", status: "Selesai" },
@@ -15,6 +15,7 @@ const initialTransactions = [
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("Semua");
+  const [selectedTrx, setSelectedTrx] = useState<typeof initialTransactions[0] | null>(null);
 
   const filteredTransactions = initialTransactions.filter((trx) => {
     const matchesSearch = trx.user.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -102,7 +103,10 @@ export default function TransactionsPage() {
                     <td className="py-4 px-6 text-sm font-medium text-gray-900 dark:text-gray-200">{trx.amount}</td>
                     <td className="py-4 px-6 text-sm">{getStatusBadge(trx.status)}</td>
                     <td className="py-4 px-6 text-sm text-right">
-                      <button className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors inline-flex items-center gap-2">
+                      <button 
+                        onClick={() => setSelectedTrx(trx)}
+                        className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors inline-flex items-center gap-2"
+                      >
                         <Eye className="w-4 h-4" />
                         <span className="sr-only sm:not-sr-only sm:text-xs font-medium">Detail</span>
                       </button>
@@ -131,6 +135,81 @@ export default function TransactionsPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Modal Detail Transaksi */}
+      <AnimatePresence>
+        {selectedTrx && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-200 dark:border-zinc-800"
+            >
+              <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-zinc-800">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Detail Transaksi</h2>
+                <button 
+                  onClick={() => setSelectedTrx(null)} 
+                  className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-6 space-y-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">ID Transaksi</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{selectedTrx.id}</p>
+                  </div>
+                  <div>
+                    {getStatusBadge(selectedTrx.status)}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex gap-3 p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-800">
+                    <User className="w-5 h-5 text-blue-500 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">User</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedTrx.user}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-800">
+                    <Camera className="w-5 h-5 text-purple-500 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Fotografer</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedTrx.photographer}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-800">
+                    <Calendar className="w-5 h-5 text-amber-500 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Tanggal Sesi</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedTrx.date}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-4 rounded-xl bg-gray-50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-800">
+                    <CreditCard className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Total Biaya</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedTrx.amount}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-200 dark:border-zinc-800 flex justify-end gap-3">
+                  <button 
+                    onClick={() => setSelectedTrx(null)}
+                    className="px-4 py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
