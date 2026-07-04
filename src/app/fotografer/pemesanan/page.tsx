@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Bell, Search, Filter, X, Calendar as CalendarIcon, MapPin, Package,
   User, Clock, FileText, Download, ChevronUp, ChevronDown as ChevronDownIcon,
   Clock3, CheckCircle2, XCircle, CheckCheck, AlertCircle, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useFotografer, formatRupiah, StatusPesanan, Order } from "@/context/FotograferContext";
+import FotograferTopbar from "../FotograferTopbar";
+import { useSearchParams } from "next/navigation";
 
 // ─── Badge configs ────────────────────────────────────────────────────────────
 const PESANAN_BADGE: Record<StatusPesanan, { bg: string; text: string; Icon: any }> = {
@@ -28,8 +30,18 @@ export default function PemesananPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [sortDir, setSortDir]           = useState<"desc" | "asc">("desc");
   const [page, setPage]                 = useState(1);
+  const searchParams = useSearchParams();
 
   const statuses = ["Semua", "Menunggu Konfirmasi", "Diterima", "Selesai", "Ditolak"];
+
+  // Handle URL param for orderId
+  useEffect(() => {
+    const orderId = searchParams.get("orderId");
+    if (orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (order) setSelectedOrder(order);
+    }
+  }, [searchParams, orders]);
 
   // ── Sort + filter ──
   // IMPORTANT: spread [...] before .sort() to avoid mutating the memoized cache
@@ -41,9 +53,9 @@ export default function PemesananPage() {
       return matchQ && matchF;
     });
     return [...filtered].sort((a, b) => {
-      const aTime = new Date(a.date).getTime();
-      const bTime = new Date(b.date).getTime();
-      return sortDir === "desc" ? bTime - aTime : aTime - bTime;
+      const valA = new Date(a.bookingDate).getTime();
+      const valB = new Date(b.bookingDate).getTime();
+      return sortDir === "asc" ? valA - valB : valB - valA;
     });
   }, [orders, searchQuery, filterStatus, sortDir]);
 
@@ -60,9 +72,9 @@ export default function PemesananPage() {
 
   // Export CSV
   const handleExportCSV = () => {
-    let csv = "ID Pesanan,Klien,Paket,Tanggal,Status Sesi\n";
+    let csv = "ID Pesanan,Klien,Paket,Tanggal Booking,Tanggal Sesi,Status Sesi\n";
     filteredData.forEach((o) => {
-      csv += `"${o.id}","${o.client}","${o.package}","${o.dateDisplay}","${o.statusPesanan}"\n`;
+      csv += `"${o.id}","${o.client}","${o.package}","${o.bookingDateDisplay}","${o.sessionDateDisplay}","${o.statusPesanan}"\n`;
     });
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url  = URL.createObjectURL(blob);
@@ -75,29 +87,13 @@ export default function PemesananPage() {
 
   return (
     <>
-      {/* ── Topbar ── */}
-      <header className="h-16 bg-white border-b border-border hidden md:flex items-center justify-between px-8 sticky top-0 z-40">
+      <FotograferTopbar>
         <div className="flex items-center gap-3 bg-surface-2 rounded-xl px-4 py-2 border border-border w-96">
           <Search className="w-4 h-4 text-text-muted" />
           <input type="text" placeholder="Cari ID, klien, atau nama paket..." className="bg-transparent text-sm outline-none w-full"
             value={searchQuery} onChange={(e) => handleSearch(e.target.value)} />
         </div>
-        <div className="flex items-center gap-4">
-          <button className="relative p-2 text-text-muted hover:bg-surface-2 rounded-full transition-colors">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-          </button>
-          <div className="w-px h-6 bg-border"></div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-foreground">Fotografer Pro</p>
-              <p className="text-xs text-text-muted">Vendor</p>
-            </div>
-            <img src="https://i.pravatar.cc/100?img=33" alt="Profile" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" />
-          </div>
-        </div>
-      </header>
-
+      </FotograferTopbar>
       <main className="p-4 md:p-8">
         {/* ── Page header + actions ── */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -157,9 +153,10 @@ export default function PemesananPage() {
                 <tr className="bg-surface-2 border-b border-border text-xs text-text-muted">
                   <th className="p-4 font-bold uppercase tracking-wider">ID Pesanan</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Klien</th>
-                  <th className="p-4 font-bold uppercase tracking-wider cursor-pointer select-none" onClick={() => { setSortDir(d => d === "desc" ? "asc" : "desc"); setPage(1); }}>
-                    <span className="flex items-center gap-1">Tanggal <SortIcon className="w-3.5 h-3.5" /></span>
+                  <th className="p-4 font-bold uppercase tracking-wider cursor-pointer select-none" onClick={() => setSortDir(s => s === "asc" ? "desc" : "asc")}>
+                    <span className="flex items-center gap-1">Tgl Booking <SortIcon className="w-3.5 h-3.5" /></span>
                   </th>
+                  <th className="p-4 font-bold uppercase tracking-wider">Tgl Sesi</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Paket</th>
                   <th className="p-4 font-bold uppercase tracking-wider">Status Sesi</th>
                   <th className="p-4 font-bold uppercase tracking-wider text-right">Aksi</th>
@@ -172,7 +169,8 @@ export default function PemesananPage() {
                     <tr key={order.id} className="border-b border-border last:border-0 hover:bg-surface-1 transition-colors">
                       <td className="p-4 font-semibold text-sm">{order.id}</td>
                       <td className="p-4 text-sm">{order.client}</td>
-                      <td className="p-4 text-sm">{order.dateDisplay}</td>
+                      <td className="p-4 text-sm font-semibold text-text-muted">{order.bookingDateDisplay}</td>
+                      <td className="p-4 text-sm font-semibold text-text-muted">{order.sessionDateDisplay}</td>
                       <td className="p-4 text-sm">{order.package}</td>
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${badge.bg}`}>
@@ -189,7 +187,7 @@ export default function PemesananPage() {
                 }) : (
                   /* ── Empty state ── */
                   <tr>
-                    <td colSpan={6} className="py-16 text-center">
+                    <td colSpan={7} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-3 text-text-muted">
                         <div className="w-16 h-16 rounded-2xl bg-surface-2 flex items-center justify-center">
                           <Search className="w-8 h-8 opacity-40" />
@@ -294,8 +292,15 @@ export default function PemesananPage() {
                     <div className="flex gap-3 items-start">
                       <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center shrink-0"><CalendarIcon className="w-4 h-4" /></div>
                       <div>
-                        <p className="text-xs text-text-muted font-medium">Tanggal</p>
-                        <p className="font-semibold">{selectedOrder.dateDisplay}</p>
+                        <p className="text-xs text-text-muted font-medium">Tgl Booking</p>
+                        <p className="font-semibold">{selectedOrder.bookingDateDisplay}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="w-8 h-8 rounded-full bg-surface-2 flex items-center justify-center shrink-0"><CalendarIcon className="w-4 h-4 text-primary" /></div>
+                      <div>
+                        <p className="text-xs text-text-muted font-medium">Tgl Sesi</p>
+                        <p className="font-semibold">{selectedOrder.sessionDateDisplay}</p>
                       </div>
                     </div>
                     <div className="flex gap-3 items-start">
