@@ -58,7 +58,7 @@ export default function FotograferTopbar({ children }: { children?: React.ReactN
                        order.statusPesanan === 'Diterima' ? 'Pesanan Diterima' : 'Pesanan Baru'}
                     </p>
                     <p className="text-xs text-text-muted mt-0.5">{order.package} - Klien: {order.client}</p>
-                    <p className="text-[10px] text-text-muted font-bold mt-2">{order.dateDisplay}</p>
+                    <p className="text-[10px] text-text-muted font-bold mt-2">{order.bookingDateDisplay}</p>
                   </div>
                 ))}
               </div>
